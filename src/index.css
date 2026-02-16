@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+/* Using safe HEX colors to ensure visibility */
+:root {
+    --radius: 0.625rem;
+
+    /* Pale Watery Earth Theme (Camel & Beige Edition) */
+    /* Background: 水をイメージした淡いアースカラー (Pale Misty Blue-Green) */
+    --background: #F0F6F7;
+
+    /* Foreground: 深みのあるスレート (Deep Slate) */
+    --foreground: #2C3E42;
+
+    /* Card: 淡いベージュ (Pale Beige) for Tab content */
+    --card: #FAF8EF;
+    --card-foreground: #2C3E42;
+
+    /* Popover: Matches Card */
+    --popover: #FAF8EF;
+    --popover-foreground: #2C3E42;
+
+    /* Primary: キャメル (Camel) for Selected items/Buttons */
+    --primary: #C19A6B;
+    --primary-foreground: #FFFFFF;
+
+    /* Secondary: 砂浜のような淡いアースカラー (Pale Sand) */
+    --secondary: #E8E4D9;
+    --secondary-foreground: #4A4538;
+
+    /* Muted: 背景に馴染むベージュグレー */
+    --muted: #EBE8E0;
+    --muted-foreground: #5F737A;
+
+    /* Accent: 水面のきらめき (Pale Cyan) */
+    --accent: #D1E4E8;
+    --accent-foreground: #2C3E42;
+
+    /* Destructive */
+    --destructive: #D15555;
+    --destructive-foreground: #FFFFFF;
+
+    /* Border/Input */
+    --border: #DCD6CC;
+    --input: #EBE8E0;
+
+    /* Ring: Camel */
+    --ring: #C19A6B;
+
+    /* Custom Colors */
+    --sage: #8DA399;
+    --sage-foreground: #FFFFFF;
+    --terracotta: #CC5500;
+    --terracotta-foreground: #FFFFFF;
+
+    /* Charts (Earth & Camel Tones) */
+    --chart-1: #C19A6B;
+    /* Camel */
+    --chart-2: #8DA399;
+    /* Sage */
+    --chart-3: #D4A373;
+    /* Sand */
+    --chart-4: #4A7C8C;
+    /* Teal */
+    --chart-5: #A8B8C2;
+    /* Blue Grey */
+
+    /* ... existing Sidebar styles ... */
+    /* Sidebar matches Card */
+    --sidebar: #FAF8EF;
+    --sidebar-foreground: #2C3E42;
+    --sidebar-primary: #C19A6B;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #EBE8E0;
+    --sidebar-accent-foreground: #2C3E42;
+    --sidebar-border: #DCD6CC;
+    --sidebar-ring: #C19A6B;
+}
+
+.dark {
+    /* ... existing dark theme ... */
+    /* Dark Theme (HEX) */
+    --background: #2b2621;
+    /* Dark Earth */
+    --foreground: #e6e1d6;
+
+    --card: #332d26;
+    --card-foreground: #e6e1d6;
+
+    --popover: #332d26;
+    --popover-foreground: #e6e1d6;
+
+    --primary: #e67326;
+    /* Brighter Terracotta (Keep original or switch to Camel? User didn't specify dark mode. Keeping Terracotta for now as it fits "Earth") */
+    --primary-foreground: #2b2621;
+
+    --secondary: #2b4d2b;
+    /* Dark Sage */
+    --secondary-foreground: #e6e1d6;
+
+    --muted: #403830;
+    --muted-foreground: #b3a699;
+
+    --accent: #2b3d4d;
+    /* Dark Smoky Blue */
+    --accent-foreground: #e6e1d6;
+
+    --destructive: #992626;
+    --destructive-foreground: #faf9f6;
+
+    --border: #4d443b;
+    --input: #4d443b;
+    --ring: #e67326;
+
+    /* Custom Colors Dark */
+    --sage: #2b4d2b;
+    --sage-foreground: #e6e1d6;
+    --terracotta: #e67326;
+    --terracotta-foreground: #2b2621;
+
+    --chart-1: #e67326;
+    --chart-2: #4d994d;
+    --chart-3: #4d7a99;
+    --chart-4: #e6d199;
+    --chart-5: #bf7340;
+
+    --sidebar: #2b2621;
+    --sidebar-foreground: #e6e1d6;
+    --sidebar-primary: #e67326;
+    --sidebar-primary-foreground: #faf9f6;
+    --sidebar-accent: #33404d;
+    --sidebar-accent-foreground: #e6e1d6;
+    --sidebar-border: #4d443b;
+    --sidebar-ring: #e67326;
+}
+
+@theme {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* Custom Colors */
+    --color-sage: var(--sage);
+    --color-sage-foreground: var(--sage-foreground);
+    --color-terracotta: var(--terracotta);
+    --color-terracotta-foreground: var(--terracotta-foreground);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before {
+        border-color: var(--border);
+    }
+
+    body {
+        background-color: var(--background);
+        /* Background Image: Survey Map */
+        background-image: url("/survey-bg.png");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        /* Blend with the pale earth color for a subtle look */
+        background-blend-mode: multiply;
+
+        color: var(--foreground);
+    }
+}

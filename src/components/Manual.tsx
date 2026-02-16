@@ -1,0 +1,156 @@
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { ScrollArea } from "./ui/scroll-area"
+
+export function Manual() {
+    return (
+        <Card className="h-[calc(100vh-120px)] md:h-[calc(100vh-140px)] flex flex-col">
+            <CardHeader className="flex-none">
+                <CardTitle>操作マニュアル & 更新履歴</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-hidden p-0">
+                <ScrollArea className="h-full px-6 pb-6">
+                    <div className="space-y-8 text-sm text-foreground/90 leading-relaxed max-w-3xl mx-auto">
+
+                        <section className="space-y-3">
+                            <h3 className="text-xl font-bold border-b pb-2 flex items-center">
+                                <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded mr-2">New</span>
+                                更新履歴 (Changelog)
+                            </h3>
+                            <div className="space-y-4">
+                                <div className="border-l-2 border-primary pl-4 ml-1">
+                                    <h4 className="font-bold flex items-center gap-2">
+                                        v1.5.0 <span className="text-xs font-normal text-muted-foreground">2026/02/15</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>計算履歴の復元</strong>: 過去の野帳データや計算結果から、入力値をワンクリックで復元する機能を追加</li>
+                                        <li><strong>UI改善</strong>: 履歴一覧のデザイン刷新、モバイル表示時のレイアウト調整</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v1.4.0 <span className="text-xs font-normal">2026/02/15</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>帳票出力 (PDF)</strong>: 座標一覧表および水準野帳のPDF出力機能を追加</li>
+                                        <li><strong>フォント改善</strong>: PDF出力時の日本語フォント(Zen Kaku Gothic New)を内蔵化し、文字化けを解消</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-60">
+                                    <h4 className="font-bold text-muted-foreground">v1.3.0</h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>地図 (Map)</strong>: 全画面表示時のレイアウト改善（ナビゲーション非表示化）</li>
+                                        <li><strong>簡易プロット</strong>: レイアウトの最適化（中央表示）、操作パネルの整理</li>
+                                        <li><strong>計算機能</strong>: 計算結果の文字サイズ調整（視認性向上）</li>
+                                        <li><strong>UI全般</strong>: テーマカラーの微調整、プルダウンメニューの操作性向上</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-40">
+                                    <h4 className="font-bold text-muted-foreground">v1.2.0</h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>地図機能の強化</strong>: 地図クリックでの点登録、住所検索、タイル地図切り替え機能を追加</li>
+                                        <li><strong>水準測量 (Leveling)</strong>: 野帳入力・計算機能を追加</li>
+                                        <li><strong>座標変換</strong>: 緯度経度⇔平面直角座標の一括変換機能を追加</li>
+                                        <li><strong>データ管理</strong>: 座標一覧に「全データ削除」「範囲削除」機能を追加</li>
+                                        <li><strong>安定性向上</strong>: データ欠損時の保護機能、簡易プロットの自動ズームを追加</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-30">
+                                    <h4 className="font-bold text-muted-foreground">v1.1.0</h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>ヘルマート変換</strong>: 座標変換機能の実装</li>
+                                        <li><strong>真北方向角</strong>: 計算機能の追加</li>
+                                        <li><strong>UI改善</strong>: テーマカラーの調整</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div className="border-t my-6"></div>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">1. 画面構成</h3>
+                            <p>画面下のメニューバー（PCは上部）から機能を切り替えます。</p>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                <li><strong>一覧 (List)</strong>: 座標データの登録・編集・インポート</li>
+                                <li><strong>計算 (Calc)</strong>: 各種測量計算・変換</li>
+                                <li><strong>地図 (Map)</strong>: 地図上での確認・登録</li>
+                                <li><strong>簡易 (Plot)</strong>: シンプルな座標展開図</li>
+                            </ul>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">2. 計算機能と履歴 (Calc & History)</h3>
+                            <p>様々な測量計算を行い、結果をブラウザに保存・復元できます。</p>
+
+                            <div className="space-y-3 mt-2">
+                                <div>
+                                    <h4 className="font-semibold text-foreground/80">計算の種類</h4>
+                                    <div className="grid md:grid-cols-2 gap-3 mt-1">
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">ST計算 (逆打ち)</span>
+                                            <span className="text-[10px] text-muted-foreground">2点間の距離・方向角を計算</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">座標変換 (Lat/Lon)</span>
+                                            <span className="text-[10px] text-muted-foreground">緯度経度 ⇔ 平面直角座標(XY)</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">水準測量 (Leveling)</span>
+                                            <span className="text-[10px] text-muted-foreground">レベル野帳の入力と計算、PDF出力</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">ヘルマート変換</span>
+                                            <span className="text-[10px] text-muted-foreground">座標系の補正・変換パラメータ算出</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-semibold text-foreground/80">便利な履歴機能</h4>
+                                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        <li><strong>記録</strong>: 計算結果画面のクリップボードアイコンをクリックすると履歴に保存されます。</li>
+                                        <li><strong>復元</strong>: 画面上部の時計アイコンから履歴を開き、回転矢印ボタンを押すと、<strong className="text-primary">過去の入力値をそのまま復元</strong>できます。</li>
+                                        <li><strong>再利用</strong>: 「さっきの計算、条件を少し変えてやり直したい」という時に便利です。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">3. 座標一覧 (List)</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <h4 className="font-semibold">データの登録・編集</h4>
+                                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        <li><strong>新規登録</strong>: 「+」ボタン、または地図クリックで登録できます。</li>
+                                        <li><strong>整理・削除</strong>: 「整理」メニューから範囲削除や全削除が可能です。誤操作防止のため確認画面が出ます。</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-semibold">インポート・エクスポート</h4>
+                                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        <li><strong>CSV/SIMA読込</strong>: 既存の座標データを一括で取り込めます。</li>
+                                        <li><strong>保存</strong>: CSV形式やSIMA形式でバックアップ・他ソフトへの連携が可能です。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">4. 地図・Webマップ (Map)</h3>
+                            <p>地理院地図やGoogleマップ（風）のタイル上に座標を表示します。</p>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                <li><strong>点登録</strong>: 地図上の任意の場所をクリックして「+」で新点を登録できます。</li>
+                                <li><strong>住所検索</strong>: 虫眼鏡アイコンから地名や住所で移動できます。</li>
+                                <li><strong>背景切替</strong>: レイヤーアイコンから地図の種類（標準・写真・淡色など）を変更できます。</li>
+                            </ul>
+                        </section>
+
+                        <div className="h-10"></div>
+                    </div>
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    )
+}
