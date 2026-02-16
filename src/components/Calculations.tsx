@@ -380,9 +380,10 @@ export function InverseCalculation({ historyData }: { historyData: HistoryItem |
                     <div className="h-full relative group">
                         {result ? (
                             <div className="h-full border rounded-lg bg-card shadow-sm p-6 flex flex-col justify-center space-y-8 relative">
-                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button variant="ghost" size="icon" onClick={handleRecord} title="計算結果を一時記録">
-                                        <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                                <div className="absolute top-2 right-2">
+                                    <Button variant="outline" size="sm" onClick={handleRecord} title="計算結果を一時記録" className="h-7 text-xs bg-background/50">
+                                        <ClipboardList className="h-3 w-3 mr-1" />
+                                        一時記録
                                     </Button>
                                 </div>
 

@@ -52,7 +52,7 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between h-9 px-3 text-xs md:text-sm bg-background font-normal"
+                    className="w-full justify-between h-10 px-3 text-sm bg-background font-normal"
                     disabled={disabled}
                 >
                     {selectedPoint ? (
@@ -92,9 +92,9 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                         <Table>
                             <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
                                 <TableRow>
-                                    <TableHead className="w-[40%]">点名</TableHead>
-                                    <TableHead className="text-right">X (North)</TableHead>
-                                    <TableHead className="text-right">Y (East)</TableHead>
+                                    <TableHead className="w-[40%] text-xs sm:text-sm">点名</TableHead>
+                                    <TableHead className="text-right text-xs sm:text-sm">X (North)</TableHead>
+                                    <TableHead className="text-right text-xs sm:text-sm">Y (East)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -104,29 +104,29 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                                             key={p.id}
                                             onClick={() => handleSelect(String(p.id))}
                                             className={cn(
-                                                "cursor-pointer transition-colors",
+                                                "cursor-pointer transition-colors h-12", // Increased height
                                                 String(p.id) === value
-                                                    ? "bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 dark:hover:bg-amber-900/80"
-                                                    : index % 2 === 0 ? "bg-muted/10" : "bg-muted/30 hover:bg-muted/50"
+                                                    ? "bg-amber-100 dark:bg-amber-900/60 hover:bg-amber-200 dark:hover:bg-amber-900/80"
+                                                    : index % 2 === 0 ? "bg-muted/5" : "bg-muted/20 hover:bg-muted/40"
                                             )}
                                         >
-                                            <TableCell className="font-medium flex items-center gap-2">
-                                                {String(p.id) === value && <Check className="h-3 w-3 text-amber-700 dark:text-amber-400" />}
-                                                <span className={String(p.id) === value ? "text-amber-900 dark:text-amber-100 font-bold" : ""}>
+                                            <TableCell className="font-medium flex items-center gap-2 text-sm">
+                                                {String(p.id) === value && <Check className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
+                                                <span className={cn(String(p.id) === value ? "text-amber-900 dark:text-amber-100 font-bold" : "text-foreground")}>
                                                     {p.name}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                                            <TableCell className="text-right font-mono text-sm text-foreground/80">
                                                 {p.x?.toFixed(3) ?? "-"}
                                             </TableCell>
-                                            <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                                            <TableCell className="text-right font-mono text-sm text-foreground/80">
                                                 {p.y?.toFixed(3) ?? "-"}
                                             </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={3} className="h-24 text-center">
+                                        <TableCell colSpan={3} className="h-24 text-center text-sm">
                                             データが見つかりません
                                         </TableCell>
                                     </TableRow>
@@ -136,7 +136,7 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                     </ScrollArea>
                 </div>
 
-                <div className="p-2 border-t text-xs text-center text-muted-foreground bg-muted/10">
+                <div className="p-3 border-t text-sm text-center text-muted-foreground bg-muted/10">
                     {filteredPoints.length} 件表示中
                 </div>
             </DialogContent>

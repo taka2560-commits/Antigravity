@@ -1,10 +1,10 @@
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents, Circle } from 'react-leaflet'
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
-import { Locate, Layers, Maximize, Minimize, Map as MapIcon, Grid, Search } from "lucide-react"
+import { Locate, Layers, Maximize, Minimize, Map as MapIcon, Grid, Search, Plus } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
 import { Input } from "./ui/input"
@@ -98,6 +98,27 @@ function MapController({ center, zoom, onMoveEnd }: { center: [number, number] |
     })
 
     return null
+}
+
+function CenterReticle({ onReticleClick }: { onReticleClick: (lat: number, lon: number) => void }) {
+    const map = useMap()
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation() // Prevent map click from firing under the button
+        e.preventDefault() // Prevent map drag start
+        const center = map.getCenter()
+        onReticleClick(center.lat, center.lng)
+    }
+
+    return (
+        <div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[400] text-red-500 drop-shadow-md cursor-crosshair hover:scale-110 transition-transform active:scale-95"
+            onClick={handleClick}
+            title="中心点として登録"
+        >
+            <Plus className="h-6 w-6" strokeWidth={3} />
+        </div>
+    )
 }
 
 const STORAGE_KEY_CENTER = 'survey-map-center'
@@ -196,23 +217,63 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
         // We do NOT update React state here to avoid re-triggering the loop
     }, [])
 
+    // GPS Tracking State
+    const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+    const [userAccuracy, setUserAccuracy] = useState<number | null>(null)
+
+    // Start tracking on mount or when requested
+    useEffect(() => {
+        if (!("geolocation" in navigator)) return
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                setUserLocation([position.coords.latitude, position.coords.longitude])
+                setUserAccuracy(position.coords.accuracy)
+            },
+            (error) => {
+                console.warn("GPS Error:", error)
+            },
+            options
+        )
+
+        return () => navigator.geolocation.clearWatch(watchId)
+    }, [])
+
     const handleLocateMe = () => {
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const newCenter: [number, number] = [position.coords.latitude, position.coords.longitude]
-                    setMapCenter(newCenter)
-                    setZoom(19) // Increased default zoom on locate
-                    localStorage.setItem(STORAGE_KEY_CENTER, JSON.stringify(newCenter))
-                    localStorage.setItem(STORAGE_KEY_ZOOM, "19")
-                },
-                (error) => {
-                    console.error("Error getting location:", error)
-                    alert("現在地を取得できませんでした。位置情報の許可を確認してください。")
-                }
-            )
+        if (userLocation) {
+            // If we already have a location, fly to it
+            setMapCenter(userLocation)
+            setZoom(19)
+            localStorage.setItem(STORAGE_KEY_CENTER, JSON.stringify(userLocation))
+            localStorage.setItem(STORAGE_KEY_ZOOM, "19")
         } else {
-            alert("お使いのブラウザは位置情報をサポートしていません。")
+            // Force a single fetch if we don't have a fix yet
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const newCenter: [number, number] = [position.coords.latitude, position.coords.longitude]
+                        setMapCenter(newCenter)
+                        setUserLocation(newCenter)
+                        setUserAccuracy(position.coords.accuracy)
+                        setZoom(19)
+                        localStorage.setItem(STORAGE_KEY_CENTER, JSON.stringify(newCenter))
+                        localStorage.setItem(STORAGE_KEY_ZOOM, "19")
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error)
+                        alert("現在地を取得できませんでした。位置情報の許可を確認してください。")
+                    },
+                    { enableHighAccuracy: true }
+                )
+            } else {
+                alert("お使いのブラウザは位置情報をサポートしていません。")
+            }
         }
     }
 
@@ -413,7 +474,13 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
 
             {/* Locate Me (Bottom Right, Map Mode Only) */}
             {viewMode === "map" && (
-                <div className="absolute bottom-6 right-4 z-[400]">
+                <div className="absolute bottom-6 right-4 z-[400] flex flex-col items-end gap-2">
+                    {/* GPS Accuracy Display */}
+                    {userLocation && (
+                        <div className="bg-background/80 backdrop-blur px-2 py-1 rounded border shadow-sm text-xs font-mono mb-1">
+                            GPS精度: ±{Math.round(userAccuracy || 0)}m
+                        </div>
+                    )}
                     <Button
                         variant="secondary"
                         size="icon"
@@ -425,6 +492,8 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                     </Button>
                 </div>
             )}
+
+            {/* Center Crosshair (Reticle) - Moved inside MapContainer */}
 
             <CardContent className="p-0 flex-1 h-full relative z-0 overflow-hidden rounded-lg">
                 {viewMode === "map" ? (
@@ -444,6 +513,43 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                             />
                             <MapController center={mapCenter} zoom={zoom} onMoveEnd={handleMapMove} />
                             <MapClickHandler onMapClick={handleMapClick} />
+                            <CenterReticle onReticleClick={(lat, lon) => handleMapClick(lat, lon)} />
+
+                            {/* User Location Marker */}
+                            {userLocation && (
+                                <>
+                                    {/* Accuracy Circle */}
+                                    <Circle
+                                        center={userLocation}
+                                        radius={userAccuracy || 0}
+                                        pathOptions={{
+                                            color: '#1d4ed8',
+                                            fillColor: '#3b82f6',
+                                            fillOpacity: 0.1,
+                                            weight: 1,
+                                            opacity: 0.3
+                                        }}
+                                    />
+                                    {/* Location Dot */}
+                                    <CircleMarker
+                                        center={userLocation}
+                                        radius={8}
+                                        pathOptions={{
+                                            color: 'white',
+                                            fillColor: '#2563eb',
+                                            fillOpacity: 1,
+                                            weight: 2
+                                        }}
+                                    >
+                                        <Popup>
+                                            <div className="text-xs">
+                                                <strong>現在地</strong><br />
+                                                精度: ±{Math.round(userAccuracy || 0)}m
+                                            </div>
+                                        </Popup>
+                                    </CircleMarker>
+                                </>
+                            )}
 
                             {validPoints.map(p => {
                                 const isHighlighted = String(p.id) === highlightedPointId

@@ -7,7 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Button } from "./ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
-export function SimplePlot() {
+interface SimplePlotProps {
+    onPointSelect?: (point: any) => void
+}
+
+export function SimplePlot({ onPointSelect }: SimplePlotProps) {
     const points = useLiveQuery(() => db.points.toArray())
     const [showLabels, setShowLabels] = useState(true)
     const [highlightedPointId, setHighlightedPointId] = useState<string>("all")
@@ -79,6 +83,18 @@ export function SimplePlot() {
             y: [midY - plotHeight / 2 - padY, midY + plotHeight / 2 + padY]
         }
     }, [data])
+
+    // Sort data to ensure highlighted point renders last (on top)
+    const sortedData = useMemo(() => {
+        if (!data) return []
+        return [...data].sort((a, b) => {
+            const aIsHigh = String(a.id) === highlightedPointId
+            const bIsHigh = String(b.id) === highlightedPointId
+            if (aIsHigh && !bIsHigh) return 1
+            if (!aIsHigh && bIsHigh) return -1
+            return 0
+        })
+    }, [data, highlightedPointId])
 
     const [domainX, setDomainX] = useState<number[] | null>(null)
     const [domainY, setDomainY] = useState<number[] | null>(null)
@@ -214,6 +230,30 @@ export function SimplePlot() {
         }
     }
 
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging || !domainX || !domainY) return
+
+        const dx = e.clientX - lastMousePos.current.x
+        const dy = e.clientY - lastMousePos.current.y
+
+        // We need to convert pixel delta to domain delta.
+        const chartContainer = e.currentTarget as HTMLElement;
+        const validChartWidth = chartContainer.clientWidth;
+        const validChartHeight = chartContainer.clientHeight;
+
+        const xRange = domainX[1] - domainX[0]
+        const yRange = domainY[1] - domainY[0]
+
+        // Custom Pan Speed
+        const domainDx = -dx * (xRange / validChartWidth)
+        const domainDy = dy * (yRange / validChartHeight)
+
+        setDomainX([domainX[0] + domainDx, domainX[1] + domainDx])
+        setDomainY([domainY[0] + domainDy, domainY[1] + domainDy])
+
+        lastMousePos.current = { x: e.clientX, y: e.clientY }
+    }
+
     const handleTouchMove = (e: React.TouchEvent) => {
         if (!domainX || !domainY) return
 
@@ -262,42 +302,161 @@ export function SimplePlot() {
         }
     }
 
+
+
+    const handleMouseUp = (e: React.MouseEvent) => {
+        // Check for click (minimal movement)
+        if (isDragging) {
+            const dx = Math.abs(e.clientX - lastMousePos.current.x)
+            const dy = Math.abs(e.clientY - lastMousePos.current.y)
+
+            // If movement is small enough, treat as click. increased tolerance for easy selection
+            if (dx < 10 && dy < 10 && onPointSelect && domainX && domainY) {
+                handleChartClick(e.clientX, e.clientY)
+            }
+        }
+        setIsDragging(false)
+    }
+
+    const handleChartClick = (clientX: number, clientY: number) => {
+        if (!chartContainerRef.current || !data || !domainX || !domainY) return
+
+        const rect = chartContainerRef.current.getBoundingClientRect()
+        const clickX = clientX - rect.left
+        const clickY = clientY - rect.top
+
+        // Margins defined in ScatterChart
+        const margin = { top: 10, right: 10, bottom: 40, left: 0 }
+
+        const chartW = rect.width
+        const chartH = rect.height
+        const innerW = chartW - margin.left - margin.right
+        const innerH = chartH - margin.top - margin.bottom
+
+        if (innerW <= 0 || innerH <= 0) return
+
+        const xRange = domainX[1] - domainX[0]
+        const yRange = domainY[1] - domainY[0]
+
+        // Find closest point
+        let closest: any = null
+        let minDist = 40 // Increased hit radius (px) for easier touch
+
+        // Iterate REVERSE to prioritize top-drawn elements (if any overlap logic existed)
+        // But here standard check is fine.
+        data.forEach(d => {
+            if (d.plotX === undefined || d.plotY === undefined) return
+
+            // Project point to screen pixels
+            const px = margin.left + ((d.plotX - domainX[0]) / xRange) * innerW
+            const py = margin.top + ((domainY[1] - d.plotY) / yRange) * innerH
+
+            const dist = Math.sqrt(Math.pow(clickX - px, 2) + Math.pow(clickY - py, 2))
+
+            if (dist < minDist) {
+                minDist = dist
+                closest = d
+            }
+        })
+
+        if (closest) {
+            onPointSelect && onPointSelect(closest)
+        }
+    }
+
     const handleTouchEnd = () => {
+        // Simple tap detection for touch is harder with current state (distances),
+        // but let's try to simulate if needed. 
+        // For now, rely on mouse events which often emulate touch taps, 
+        // or add specific touch tap logic if 'onClick' fails on mobile.
+        // Recharts might handle the tap-to-click on mobile better given no mouse drag.
+
+        // However, disabling drag resets state
         lastTouchDistance.current = null
         lastTouchCenter.current = null
     }
 
+    // Capture initial pos for click detection
     const handleMouseDown = (e: React.MouseEvent) => {
         setIsDragging(true)
         lastMousePos.current = { x: e.clientX, y: e.clientY }
     }
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || !domainX || !domainY) return
+    // State for chart dimensions
+    const [chartSize, setChartSize] = useState({ width: 0, height: 0 })
+    const chartContainerRef = useRef<HTMLDivElement>(null)
 
-        const dx = e.clientX - lastMousePos.current.x
-        const dy = e.clientY - lastMousePos.current.y
+    // Measure chart size for label collision detection
+    useEffect(() => {
+        if (!chartContainerRef.current) return
 
-        // We need to convert pixel delta to domain delta.
-        const chartContainer = e.currentTarget as HTMLElement;
-        const validChartWidth = chartContainer.clientWidth;
-        const validChartHeight = chartContainer.clientHeight;
+        const updateSize = () => {
+            if (chartContainerRef.current) {
+                setChartSize({
+                    width: chartContainerRef.current.clientWidth,
+                    height: chartContainerRef.current.clientHeight
+                })
+            }
+        }
+
+        updateSize()
+        const observer = new ResizeObserver(updateSize)
+        observer.observe(chartContainerRef.current)
+
+        return () => observer.disconnect()
+    }, [])
+
+    // Determine visible labels based on overlap
+    const visibleLabelIds = useMemo(() => {
+        if (!sortedData || sortedData.length === 0 || !domainX || !domainY || chartSize.width === 0) {
+            return new Set(sortedData?.map(d => String(d.id)))
+        }
+
+        const visible = new Set<string>()
+        const placedPositions: { x: number, y: number }[] = []
+
+        // Always show highlighted point
+        if (highlightedPointId !== "all") {
+            visible.add(highlightedPointId)
+            const target = sortedData.find(d => String(d.id) === highlightedPointId)
+            if (target && target.plotX !== undefined && target.plotY !== undefined) {
+                const xRange = domainX[1] - domainX[0]
+                const yRange = domainY[1] - domainY[0]
+                const px = ((target.plotX - domainX[0]) / xRange) * chartSize.width
+                const py = ((domainY[1] - target.plotY) / yRange) * chartSize.height // Y is inverted in screen coords
+                placedPositions.push({ x: px, y: py })
+            }
+        }
 
         const xRange = domainX[1] - domainX[0]
         const yRange = domainY[1] - domainY[0]
+        const minLabelDist = 50 // Minimum pixels between labels
 
-        const domainDx = -dx * (xRange / validChartWidth)
-        const domainDy = dy * (yRange / validChartHeight)
+        sortedData.forEach(d => {
+            const strId = String(d.id)
+            if (strId === highlightedPointId) return // Already handled
 
-        setDomainX([domainX[0] + domainDx, domainX[1] + domainDx])
-        setDomainY([domainY[0] + domainDy, domainY[1] + domainDy])
+            if (d.plotX === undefined || d.plotY === undefined) return
 
-        lastMousePos.current = { x: e.clientX, y: e.clientY }
-    }
+            // Calculate screen position approx
+            const px = ((d.plotX - domainX[0]) / xRange) * chartSize.width
+            const py = ((domainY[1] - d.plotY) / yRange) * chartSize.height
 
-    const handleMouseUp = () => {
-        setIsDragging(false)
-    }
+            // Check collision with ANY placed label
+            const isOverlapping = placedPositions.some(pos => {
+                const dx = Math.abs(pos.x - px)
+                const dy = Math.abs(pos.y - py)
+                return Math.sqrt(dx * dx + dy * dy) < minLabelDist
+            })
+
+            if (!isOverlapping) {
+                visible.add(strId)
+                placedPositions.push({ x: px, y: py })
+            }
+        })
+
+        return visible
+    }, [sortedData, domainX, domainY, chartSize, highlightedPointId])
 
     if (!points || points.length === 0) {
         return (
@@ -349,7 +508,8 @@ export function SimplePlot() {
 
             <CardContent className="px-1 sm:px-6 flex-1 min-h-0 relative flex items-center justify-center">
                 <div
-                    className="w-full h-full max-w-[800px] border rounded-lg bg-card relative overflow-hidden touch-none mx-auto"
+                    ref={chartContainerRef}
+                    className="w-full h-full max-w-[800px] border rounded-lg bg-card relative overflow-hidden touch-none select-none outline-none mx-auto"
                     onWheel={handleWheel}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
@@ -359,8 +519,11 @@ export function SimplePlot() {
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                 >
-                    <ResponsiveContainer width="100%" height="100%" aspect={0.75}>
-                        <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ScatterChart
+                            margin={{ top: 10, right: 10, bottom: 40, left: 0 }}
+                            style={{ cursor: onPointSelect ? 'crosshair' : 'default' }}
+                        >
                             <CartesianGrid strokeDasharray="5 5" stroke="#888888" strokeOpacity={0.4} />
                             <XAxis
                                 type="number"
@@ -369,7 +532,7 @@ export function SimplePlot() {
                                 domain={domainX || ['auto', 'auto']}
                                 ticks={axisInfo.x.ticks}
                                 allowDataOverflow={true}
-                                label={{ value: 'Y座標', position: 'insideBottom', offset: -20, fill: 'currentColor', fontSize: 10 }}
+                                label={{ value: 'Y座標', position: 'insideBottom', offset: -30, fill: 'currentColor', fontSize: 10 }}
                                 tick={{ fill: 'currentColor', fontSize: 9 }}
                                 stroke="currentColor"
                                 className="text-muted-foreground"
@@ -395,13 +558,33 @@ export function SimplePlot() {
                                 cursor={{ strokeDasharray: '3 3', stroke: '#E07A5F', strokeWidth: 1.5 }}
                                 content={({ active, payload }) => {
                                     if (active && payload && payload.length) {
-                                        const data = payload[0].payload;
+                                        const hoverData = payload[0].payload;
+
+                                        // Dynamic tolerance based on current zoom level (e.g., 2% of the view width)
+                                        const xRange = (domainX && domainX.length === 2) ? (domainX[1] - domainX[0]) : 100
+                                        const yRange = (domainY && domainY.length === 2) ? (domainY[1] - domainY[0]) : 100
+                                        const toleranceX = xRange * 0.02
+                                        const toleranceY = yRange * 0.02
+
+                                        // Find overlapping points (same coordinates within visual tolerance)
+                                        const overlappingPoints = data.filter(d =>
+                                            Math.abs((d.plotX ?? 0) - (hoverData.plotX ?? 0)) < toleranceX &&
+                                            Math.abs((d.plotY ?? 0) - (hoverData.plotY ?? 0)) < toleranceY
+                                        );
+
+                                        // Sort by name for consistent display
+                                        overlappingPoints.sort((a, b) => a.name.localeCompare(b.name));
+
                                         return (
                                             <div className="bg-popover text-popover-foreground p-2 border shadow-md rounded text-xs z-50 pointer-events-none whitespace-nowrap">
-                                                <p className="font-bold">{data.name}</p>
-                                                <p>X: {(data.x ?? 0).toFixed(3)}</p>
-                                                <p>Y: {(data.y ?? 0).toFixed(3)}</p>
-                                                {data.note && <p className="text-muted-foreground text-xs">{data.note}</p>}
+                                                {overlappingPoints.map((p, idx) => (
+                                                    <div key={p.id} className={idx > 0 ? "mt-2 pt-2 border-t border-border" : ""}>
+                                                        <p className="font-bold">{p.name}</p>
+                                                        <p>X: {(p.x ?? 0).toFixed(3)}</p>
+                                                        <p>Y: {(p.y ?? 0).toFixed(3)}</p>
+                                                        {p.note && <p className="text-muted-foreground text-xs">{p.note}</p>}
+                                                    </div>
+                                                ))}
                                             </div>
                                         );
                                     }
@@ -409,15 +592,41 @@ export function SimplePlot() {
                                 }}
                             />
                             <ZAxis range={[30, 30]} />
-                            <Scatter name="Points" data={data} fill="#ef4444">
-                                {data.map((entry, index) => (
+                            <Scatter
+                                name="Points"
+                                data={sortedData}
+                                fill="#ef4444"
+                            >
+                                {sortedData.map((entry) => (
                                     <Cell
-                                        key={`cell-${index}`}
+                                        key={`cell-${entry.id}`}
                                         fill={String(entry.id) === highlightedPointId ? "#2563eb" : "#ef4444"}
+                                        cursor={onPointSelect ? 'pointer' : 'default'}
                                     />
                                 ))}
                                 {showLabels && (
-                                    <LabelList dataKey="name" position="top" offset={5} style={{ fill: 'hsl(var(--foreground))', fontSize: '9px', fontWeight: 500 }} />
+                                    <LabelList
+                                        dataKey="name"
+                                        position="top"
+                                        offset={5}
+                                        content={(props: any) => {
+                                            const { x, y, value, index } = props
+                                            const point = sortedData[index]
+                                            if (!visibleLabelIds.has(String(point.id))) return null
+                                            return (
+                                                <text
+                                                    x={x}
+                                                    y={y - 5}
+                                                    fill="hsl(var(--foreground))"
+                                                    fontSize={11}
+                                                    fontWeight={600}
+                                                    textAnchor="middle"
+                                                >
+                                                    {value}
+                                                </text>
+                                            )
+                                        }}
+                                    />
                                 )}
                             </Scatter>
                         </ScatterChart>

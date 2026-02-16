@@ -178,9 +178,10 @@ export function TrueNorthCalculation({ historyData }: { historyData: HistoryItem
 
                     {/* Results */}
                     <div className="space-y-6 relative group">
-                        <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <Button variant="ghost" size="icon" onClick={handleRecord} title="計算結果を一時記録">
-                                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                        <div className="absolute top-0 right-0 z-10">
+                            <Button variant="outline" size="sm" onClick={handleRecord} title="計算結果を一時記録" className="h-7 text-xs bg-background/50">
+                                <ClipboardList className="h-3 w-3 mr-1" />
+                                一時記録
                             </Button>
                         </div>
 

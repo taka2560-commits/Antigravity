@@ -165,10 +165,10 @@ export function MultiPointSelector({ points, selectedIds, onSelectionChange, tri
                         <Table>
                             <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
                                 <TableRow>
-                                    <TableHead className="w-[50px] text-center">選択</TableHead>
-                                    <TableHead>点名</TableHead>
-                                    <TableHead className="text-right">X (North)</TableHead>
-                                    <TableHead className="text-right">Y (East)</TableHead>
+                                    <TableHead className="w-[50px] text-center text-xs sm:text-sm">選択</TableHead>
+                                    <TableHead className="text-xs sm:text-sm">点名</TableHead>
+                                    <TableHead className="text-right text-xs sm:text-sm">X (North)</TableHead>
+                                    <TableHead className="text-right text-xs sm:text-sm">Y (East)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -180,10 +180,10 @@ export function MultiPointSelector({ points, selectedIds, onSelectionChange, tri
                                                 key={p.id}
                                                 onClick={() => toggleSelection(p.id!)}
                                                 className={cn(
-                                                    "cursor-pointer transition-colors",
+                                                    "cursor-pointer transition-colors h-12", // Increased height
                                                     isSelected
-                                                        ? "bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 dark:hover:bg-amber-900/80"
-                                                        : index % 2 === 0 ? "bg-muted/10" : "bg-muted/30 hover:bg-muted/50"
+                                                        ? "bg-amber-100 dark:bg-amber-900/60 hover:bg-amber-200 dark:hover:bg-amber-900/80"
+                                                        : index % 2 === 0 ? "bg-muted/5" : "bg-muted/20 hover:bg-muted/40"
                                                 )}
                                             >
                                                 <TableCell className="w-[50px]">
@@ -193,13 +193,13 @@ export function MultiPointSelector({ points, selectedIds, onSelectionChange, tri
                                                         className={isSelected ? "border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white dark:border-amber-400 dark:data-[state=checked]:bg-amber-400 dark:data-[state=checked]:text-black" : ""}
                                                     />
                                                 </TableCell>
-                                                <TableCell className={cn("font-medium", isSelected ? "text-amber-900 dark:text-amber-100 font-bold" : "")}>
+                                                <TableCell className={cn("font-medium text-sm", isSelected ? "text-amber-900 dark:text-amber-100 font-bold" : "text-foreground")}>
                                                     {p.name}
                                                 </TableCell>
-                                                <TableCell className={cn("text-right font-mono text-xs text-muted-foreground", isSelected ? "text-amber-800 dark:text-amber-200" : "")}>
+                                                <TableCell className={cn("text-right font-mono text-sm text-foreground/80", isSelected ? "text-amber-800 dark:text-amber-200" : "")}>
                                                     {p.x?.toFixed(3) ?? "-"}
                                                 </TableCell>
-                                                <TableCell className={cn("text-right font-mono text-xs text-muted-foreground", isSelected ? "text-amber-800 dark:text-amber-200" : "")}>
+                                                <TableCell className={cn("text-right font-mono text-sm text-foreground/80", isSelected ? "text-amber-800 dark:text-amber-200" : "")}>
                                                     {p.y?.toFixed(3) ?? "-"}
                                                 </TableCell>
                                             </TableRow>
@@ -207,7 +207,7 @@ export function MultiPointSelector({ points, selectedIds, onSelectionChange, tri
                                     })
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
+                                        <TableCell colSpan={4} className="h-24 text-center text-sm">
                                             データが見つかりません
                                         </TableCell>
                                     </TableRow>

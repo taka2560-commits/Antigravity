@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CalculationHistoryProvider } from "./hooks/useCalculationHistory"
 import { CoordinateTable } from "./components/CoordinateTable"
 import { Calculations } from "./components/Calculations"
@@ -13,9 +13,21 @@ import { cn } from "./lib/utils"
 
 
 function App() {
-  const [activeTab, setActiveTab] = useState("list")
+  // Initialize from localStorage if available
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("antigravity_active_tab") || "list"
+    }
+    return "list"
+  })
+
   const [viewMode, setViewMode] = useState<"mobile" | "pc">("mobile")
   const [isFullScreen, setIsFullScreen] = useState(false)
+
+  // Persist activeTab
+  useEffect(() => {
+    localStorage.setItem("antigravity_active_tab", activeTab)
+  }, [activeTab])
 
   return (
     <CalculationHistoryProvider>
@@ -124,68 +136,60 @@ function App() {
           viewMode === "mobile" ? "max-w-md" : "max-w-7xl grid grid-cols-1 gap-6"
         )}>
           {viewMode === "pc" ? (
-            // PC Mode: Show components based on active tab, but utilizing full width
-            <>
-              {activeTab === "list" && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <CoordinateTable />
-                </div>
-              )}
-              {activeTab === "map" && (
-                <div>
-                  <Card className="h-[600px] p-4">
-                    <ErrorBoundary name="SurveyMap">
-                      <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
-                    </ErrorBoundary>
-                  </Card>
-                </div>
-              )}
-              {activeTab === "calc" && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <ErrorBoundary name="Calculations">
-                    <Calculations />
-                  </ErrorBoundary>
-                </div>
-              )}
-              {activeTab === "manual" && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <Manual />
-                </div>
-              )}
-              {activeTab === "contact" && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <Contact />
-                </div>
-              )}
-            </>
-          ) : (
-            // Mobile Mode (Original)
+            // PC Mode: Keep all components mounted, toggle visibility
             <>
               <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
                 <CoordinateTable />
               </div>
-              {activeTab === "map" ? (
-                <div>
+
+              <div className={cn(activeTab !== "map" && "hidden")}>
+                <Card className="h-[600px] p-4">
                   <ErrorBoundary name="SurveyMap">
                     <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
                   </ErrorBoundary>
-                </div>
-              ) : null}
+                </Card>
+              </div>
+
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "calc" && "hidden")}>
+                <ErrorBoundary name="Calculations">
+                  <Calculations />
+                </ErrorBoundary>
+              </div>
+
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "manual" && "hidden")}>
+                <Manual />
+              </div>
+
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "contact" && "hidden")}>
+                <Contact />
+              </div>
+            </>
+          ) : (
+            // Mobile Mode: Keep all components mounted, toggle visibility
+            <>
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
+                <CoordinateTable />
+              </div>
+
+              <div className={cn("pb-20", activeTab !== "map" && "hidden")}>
+                <ErrorBoundary name="SurveyMap">
+                  <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
+                </ErrorBoundary>
+              </div>
+
               <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "calc" && "hidden")}>
                 <ErrorBoundary name="Calculations">
                   <Calculations />
                 </ErrorBoundary>
               </div>
-              {activeTab === "manual" ? (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20">
-                  <Manual />
-                </div>
-              ) : null}
-              {activeTab === "contact" ? (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20">
-                  <Contact />
-                </div>
-              ) : null}
+
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "manual" && "hidden")}>
+                <Manual />
+              </div>
+
+              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "contact" && "hidden")}>
+                <Contact />
+              </div>
             </>
           )}
         </main>

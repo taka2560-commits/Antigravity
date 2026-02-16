@@ -2,8 +2,9 @@ import { useState, useMemo, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
 import { calculateHelmertParams, type ControlPointPair, type HelmertParams, transformPoint } from "../utils/helmert"
-import { Plus, Trash2, AlertCircle, Save, ClipboardList } from "lucide-react"
+import { Plus, Trash2, AlertCircle, Save, ClipboardList, Grid } from "lucide-react"
 
+import { SimplePlot } from "./SimplePlot"
 import { PointSelector } from "./PointSelector"
 import { MultiPointSelector } from "./MultiPointSelector"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card"
@@ -76,6 +77,14 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
     // Batch Mode State
     const [selectedBatchIds, setSelectedBatchIds] = useState<Set<number>>(new Set())
     const [batchPreview, setBatchPreview] = useState<{ id: number, originalName: string, x: number, y: number, newX: number, newY: number }[] | null>(null)
+
+    // Plot Selection State
+    // Type: 'control' for input pairs, 'test' for single point test
+    const [plotSelectTarget, setPlotSelectTarget] = useState<{
+        type: 'control' | 'test',
+        index: number,
+        field?: 'source' | 'target'
+    } | null>(null)
 
     // Restore from history
     useEffect(() => {
@@ -247,7 +256,18 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
                                         {/* Source */}
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center h-6">
-                                                <Label className="text-[10px] font-semibold text-muted-foreground uppercase">変換元 (Source)</Label>
+                                                <Label className="text-xs font-semibold text-muted-foreground uppercase">変換元 (Source)</Label>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                    title="プロットから選択"
+                                                    onClick={() => {
+                                                        setPlotSelectTarget({ type: 'control', index: idx, field: 'source' })
+                                                    }}
+                                                >
+                                                    <Grid className="h-4 w-4 text-primary" />
+                                                </Button>
                                             </div>
 
                                             <PointSelector
@@ -260,21 +280,21 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
 
                                             <div className="grid grid-cols-2 gap-2 mt-2">
                                                 <div className="space-y-1">
-                                                    <Label className="text-[9px] text-muted-foreground">X</Label>
                                                     <Input
                                                         type="number"
+                                                        placeholder="X"
                                                         value={pair.source.x ?? ""}
                                                         onChange={(e) => updatePair(idx, 'source', 'x', e.target.value)}
-                                                        className="h-7 text-xs bg-background"
+                                                        className="h-9 text-sm bg-background"
                                                     />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <Label className="text-[9px] text-muted-foreground">Y</Label>
                                                     <Input
                                                         type="number"
+                                                        placeholder="Y"
                                                         value={pair.source.y ?? ""}
                                                         onChange={(e) => updatePair(idx, 'source', 'y', e.target.value)}
-                                                        className="h-7 text-xs bg-background"
+                                                        className="h-9 text-sm bg-background"
                                                     />
                                                 </div>
                                             </div>
@@ -283,7 +303,18 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
                                         {/* Target */}
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center h-6">
-                                                <Label className="text-[10px] font-semibold text-muted-foreground uppercase">変換先 (Target)</Label>
+                                                <Label className="text-xs font-semibold text-muted-foreground uppercase">変換先 (Target)</Label>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                    title="プロットから選択"
+                                                    onClick={() => {
+                                                        setPlotSelectTarget({ type: 'control', index: idx, field: 'target' })
+                                                    }}
+                                                >
+                                                    <Grid className="h-4 w-4 text-primary" />
+                                                </Button>
                                             </div>
 
                                             <PointSelector
@@ -296,21 +327,21 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
 
                                             <div className="grid grid-cols-2 gap-2 mt-2">
                                                 <div className="space-y-1">
-                                                    <Label className="text-[9px] text-muted-foreground">X</Label>
                                                     <Input
                                                         type="number"
+                                                        placeholder="X"
                                                         value={pair.target.x ?? ""}
                                                         onChange={(e) => updatePair(idx, 'target', 'x', e.target.value)}
-                                                        className="h-7 text-xs bg-background"
+                                                        className="h-9 text-sm bg-background"
                                                     />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <Label className="text-[9px] text-muted-foreground">Y</Label>
                                                     <Input
                                                         type="number"
+                                                        placeholder="Y"
                                                         value={pair.target.y ?? ""}
                                                         onChange={(e) => updatePair(idx, 'target', 'y', e.target.value)}
-                                                        className="h-7 text-xs bg-background"
+                                                        className="h-9 text-sm bg-background"
                                                     />
                                                 </div>
                                             </div>
@@ -373,7 +404,20 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
 
                                     <TabsContent value="single" className="space-y-4 mt-4">
                                         <div className="space-y-2">
-                                            <Label className="text-xs">点を選択 (任意)</Label>
+                                            <div className="flex justify-between items-center">
+                                                <Label className="text-xs">点を選択 (任意)</Label>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    title="プロットから選択"
+                                                    onClick={() => {
+                                                        setPlotSelectTarget({ type: 'test', index: 0 })
+                                                    }}
+                                                >
+                                                    <Grid className="h-3 w-3 text-primary" />
+                                                </Button>
+                                            </div>
                                             <PointSelector
                                                 points={points}
                                                 value={testPointId}
@@ -409,9 +453,10 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
 
                                         {transformedTestPoint && (
                                             <div className="bg-primary/5 p-4 rounded-lg space-y-4 text-center border border-primary/10 relative group">
-                                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button variant="ghost" size="icon" onClick={handleRecord} title="計算結果を一時記録">
-                                                        <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                                                <div className="absolute top-2 right-2">
+                                                    <Button variant="outline" size="sm" onClick={handleRecord} title="計算結果を一時記録" className="h-7 text-xs bg-background/50">
+                                                        <ClipboardList className="h-3 w-3 mr-1" />
+                                                        一時記録
                                                     </Button>
                                                 </div>
 
@@ -511,6 +556,32 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </Card>
+
+            {/* Plot Selector Dialog */}
+            <Dialog open={!!plotSelectTarget} onOpenChange={(open) => !open && setPlotSelectTarget(null)}>
+                <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-1">
+                    <div className="flex-1 overflow-hidden relative rounded-md">
+                        <SimplePlot onPointSelect={(point) => {
+                            if (!plotSelectTarget) return
+
+                            // Handle selection based on target type
+                            if (plotSelectTarget.type === 'control' && plotSelectTarget.field) {
+                                setPairFromPoint(plotSelectTarget.index, plotSelectTarget.field, String(point.id))
+                            } else if (plotSelectTarget.type === 'test') {
+                                setTestPointId(String(point.id))
+                            }
+
+                            setPlotSelectTarget(null)
+                        }} />
+                        <div className="absolute top-2 left-2 pointer-events-none bg-background/80 backdrop-blur px-2 py-1 rounded text-xs border shadow">
+                            点をクリックして選択
+                        </div>
+                    </div>
+                    <DialogFooter className="p-2">
+                        <Button variant="outline" size="sm" onClick={() => setPlotSelectTarget(null)}>キャンセル</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog >
+        </Card >
     )
 }
