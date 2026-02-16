@@ -35,8 +35,6 @@ export async function createPDF(): Promise<jsPDFWithAutoTable> {
         doc.addFont(filename, fontName, "normal")
         doc.addFont(filename, fontName, "bold") // Register as bold too to prevent fallback
         doc.setFont(fontName)
-
-        console.log("Japanese font loaded successfully")
     } catch (error) {
         console.error("Failed to load Japanese font:", error)
         alert("日本語フォント(ZenKakuGothicNew)の読み込みに失敗しました。\nPDFが正しく表示されない可能性があります。")

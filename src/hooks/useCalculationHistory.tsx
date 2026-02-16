@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 
-export type HistoryType = 'st' | 'coord' | 'north' | 'helmert' | 'point';
+export type HistoryType = 'st' | 'coord' | 'north' | 'helmert' | 'point' | 'gradient' | 'trig' | 'curve' | 'counter';
 
 export interface HistoryItem {
     id: string; // UUID

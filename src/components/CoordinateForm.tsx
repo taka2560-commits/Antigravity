@@ -36,6 +36,8 @@ export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormP
         register,
         handleSubmit,
         reset,
+        setValue,
+        getValues,
         formState: { errors },
     } = useForm<FormData>({
         // @ts-expect-error - zodResolver type mismatch with coerce
@@ -111,13 +113,28 @@ export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormP
                             X座標
                         </Label>
                         <div className="col-span-3">
-                            <Input
-                                id="x"
-                                type="number"
-                                step="0.001"
-                                className={errors.x ? "border-destructive" : ""}
-                                {...register("x")}
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="x"
+                                    type="number"
+                                    step="0.001"
+                                    className={errors.x ? "border-destructive" : ""}
+                                    {...register("x")}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0 w-10 font-bold"
+                                    onClick={() => {
+                                        const current = getValues("x");
+                                        setValue("x", -current);
+                                    }}
+                                    tabIndex={-1}
+                                >
+                                    -
+                                </Button>
+                            </div>
                             {errors.x && <p className="mt-1 text-xs text-destructive">{errors.x.message}</p>}
                         </div>
                     </div>
@@ -126,13 +143,28 @@ export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormP
                             Y座標
                         </Label>
                         <div className="col-span-3">
-                            <Input
-                                id="y"
-                                type="number"
-                                step="0.001"
-                                className={errors.y ? "border-destructive" : ""}
-                                {...register("y")}
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="y"
+                                    type="number"
+                                    step="0.001"
+                                    className={errors.y ? "border-destructive" : ""}
+                                    {...register("y")}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0 w-10 font-bold"
+                                    onClick={() => {
+                                        const current = getValues("y");
+                                        setValue("y", -current);
+                                    }}
+                                    tabIndex={-1}
+                                >
+                                    -
+                                </Button>
+                            </div>
                             {errors.y && <p className="mt-1 text-xs text-destructive">{errors.y.message}</p>}
                         </div>
                     </div>
@@ -141,13 +173,28 @@ export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormP
                             Z座標
                         </Label>
                         <div className="col-span-3">
-                            <Input
-                                id="z"
-                                type="number"
-                                step="0.001"
-                                className={errors.z ? "border-destructive" : ""}
-                                {...register("z")}
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="z"
+                                    type="number"
+                                    step="0.001"
+                                    className={errors.z ? "border-destructive" : ""}
+                                    {...register("z")}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0 w-10 font-bold"
+                                    onClick={() => {
+                                        const current = getValues("z");
+                                        setValue("z", -current);
+                                    }}
+                                    tabIndex={-1}
+                                >
+                                    -
+                                </Button>
+                            </div>
                             {errors.z && <p className="mt-1 text-xs text-destructive">{errors.z.message}</p>}
                         </div>
                     </div>

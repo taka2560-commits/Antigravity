@@ -19,7 +19,16 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v1.5.0 <span className="text-xs font-normal text-muted-foreground">2026/02/15</span>
+                                        v1.6.0 <span className="text-xs font-normal text-muted-foreground">2026/02/16</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>建設電卓</strong>: 勾配・三角関数・単曲線・累加計算・一般電卓を搭載した電卓機能を追加</li>
+                                        <li><strong>モバイル入力改善</strong>: 座標登録時のマイナス入力ボタン、電卓の入力支援ボタンを追加</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v1.5.0 <span className="text-xs font-normal">2026/02/15</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>計算履歴の復元</strong>: 過去の野帳データや計算結果から、入力値をワンクリックで復元する機能を追加</li>
@@ -123,6 +132,7 @@ export function Manual() {
                                     <h4 className="font-semibold">データの登録・編集</h4>
                                     <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                                         <li><strong>新規登録</strong>: 「+」ボタン、または地図クリックで登録できます。</li>
+                                        <li><strong>マイナス入力</strong>: モバイル等でマイナスが入力しにくい場合、各座標欄の横にある <code>[-]</code> ボタンで値を反転できます。</li>
                                         <li><strong>整理・削除</strong>: 「整理」メニューから範囲削除や全削除が可能です。誤操作防止のため確認画面が出ます。</li>
                                     </ul>
                                 </div>
@@ -145,6 +155,23 @@ export function Manual() {
                                 <li><strong>住所検索</strong>: 虫眼鏡アイコンから地名や住所で移動できます。</li>
                                 <li><strong>背景切替</strong>: レイヤーアイコンから地図の種類（標準・写真・淡色など）を変更できます。</li>
                             </ul>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">5. 建設電卓 (Construction Calc)</h3>
+                            <p>現場で役立つ計算機能をまとめた電卓です。</p>
+                            <div className="space-y-3 mt-2">
+                                <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                    <li><strong>勾配計算</strong>: 水平距離と（比高・勾配・角度）から残りの要素を計算。</li>
+                                    <li><strong>三角関数</strong>: 角度からsin, cos, tanを算出。</li>
+                                    <li><strong>単曲線</strong>: カーブ要素（R, IAなど）から接線長や曲線長を計算。</li>
+                                    <li><strong>累加計算</strong>: カウンターのように数値を足し引きし、履歴に残せます。</li>
+                                    <li><strong>一般電卓</strong>: シンプルな四則演算電卓（履歴付き）。</li>
+                                </ul>
+                                <p className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
+                                    ※ モバイル入力用に、度分秒記号 <code>° ′ ″</code> の入力ボタンがあります。一般電卓の文字色は視認性の高い黒を採用しています。
+                                </p>
+                            </div>
                         </section>
 
                         <div className="h-10"></div>

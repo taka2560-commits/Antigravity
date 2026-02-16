@@ -8,6 +8,7 @@ import { TrueNorthCalculation } from "./TrueNorthCalculation"
 import { PointSelector } from "./PointSelector"
 import { LevelingBook } from "./LevelingBook"
 import { CalculationHistory } from "./CalculationHistory"
+import { ConstructionCalculator } from "./ConstructionCalculator"
 import { useCalculationHistory, type HistoryItem } from "../hooks/useCalculationHistory"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
@@ -83,22 +84,26 @@ export function Calculations() {
 
                 {mode === "general" ? (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-muted/50">
-                            <TabsTrigger value="inverse" className="flex-col gap-1 py-2 text-[10px] md:text-sm data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
+                            <TabsTrigger value="inverse" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Ruler className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ST計算</span>
                             </TabsTrigger>
-                            <TabsTrigger value="coords" className="flex-col gap-1 py-2 text-[10px] md:text-sm data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                            <TabsTrigger value="coords" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <ArrowRightLeft className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>座標変換</span>
                             </TabsTrigger>
-                            <TabsTrigger value="truenorth" className="flex-col gap-1 py-2 text-[10px] md:text-sm data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                            <TabsTrigger value="truenorth" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Compass className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>真北角</span>
                             </TabsTrigger>
-                            <TabsTrigger value="leveling" className="flex-col gap-1 py-2 text-[10px] md:text-sm data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                            <TabsTrigger value="leveling" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <BookOpen className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>水準測量</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="calculator" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                                <Calculator className="h-4 w-4 md:h-5 md:w-5" />
+                                <span>建設電卓</span>
                             </TabsTrigger>
                         </TabsList>
 
@@ -114,6 +119,9 @@ export function Calculations() {
                             </TabsContent>
                             <TabsContent value="leveling" className="m-0 space-y-4">
                                 <LevelingBook />
+                            </TabsContent>
+                            <TabsContent value="calculator" className="m-0 space-y-4">
+                                <ConstructionCalculator />
                             </TabsContent>
                         </div>
                     </Tabs>
