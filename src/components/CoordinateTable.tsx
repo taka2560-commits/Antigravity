@@ -253,8 +253,15 @@ export function CoordinateTable() {
     const handleExportSIMA = () => {
         if (!points || points.length === 0) return
         const sima = generateSima(points)
-        const blob = new Blob([sima], { type: "text/plain;charset=shift_jis;" })
-        saveAs(blob, "coordinates.sima")
+        const blob = new Blob([sima], { type: "application/octet-stream" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "coordinates.sim"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
     }
 
     return (

@@ -1,73 +1,253 @@
-# React + TypeScript + Vite
+# Antigravity - 測量座標管理アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+測量現場で活用できる多機能な座標管理・計算ツールです。Web技術で構築されており、スマートフォンやタブレット、PCなど様々なデバイスで動作します。
 
-Currently, two official plugins are available:
+## 🌟 主要機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📍 座標管理
+- **座標一覧表示**: 登録した点の座標を一覧で管理
+- **座標入力・編集**: 点名、X、Y、Z座標、標高、備考などの情報を登録
+- **検索・フィルタリング**: 点名や座標での検索機能
+- **CSVエクスポート**: 座標データをCSV形式で出力
+- **データの永続化**: IndexedDBによるローカルデータ保存
 
-## React Compiler
+### 🗺️ 地図機能
+- **インタラクティブマップ**: Leaflet.jsを使用した地図表示
+- **座標プロット**: 登録した座標を地図上に表示
+- **地図から座標登録**: 地図をクリックして座標を登録
+- **住所検索**: 住所や地名を入力して地図を移動（OpenStreetMap Nominatim API）
+- **高解像度ズーム**: 最大ズームレベル24まで対応
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 📊 簡易プロット
+- **2D座標プロット**: X-Y座標を視覚的に表示
+- **点のハイライト**: 特定の点を選択して強調表示
+- **点名表示切替**: 点名の表示/非表示を切り替え
+- **ズーム機能**: マウスホイールでのズームイン/アウト
 
-## Expanding the ESLint configuration
+### 🧮 計算機能
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+#### ST計算（2点間計算）
+- 2点間の距離（水平距離・傾斜距離）を計算
+- 方位角、高低差を算出
+- 登録済み座標または手動入力で計算可能
+- 計算結果を履歴に保存
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+#### 座標変換
+- **緯度経度 ⇔ 平面直角座標系（XY）変換**
+- 複数の座標系に対応（1系～19系）
+- 単点変換と一括変換をサポート
+- proj4.jsによる高精度変換
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+#### ヘルマート変換
+- 公共点ペアを使った座標変換
+- 7パラメータ変換（回転、平行移動、スケール）
+- 一括変換機能
+- 変換結果のプレビュー表示
+- 引用点検索機能による操作性向上
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+#### 真北角計算
+- 指定した地点の真北方向角を計算
+- 磁北との差を算出
+
+#### 水準測量（レベルブック）
+- レベルブック形式でのデータ入力
+- 器械高、地盤高の自動計算
+- 観測データの保存・管理
+- PDF出力機能
+
+### 🔧 建設電卓
+
+#### 勾配計算
+- 水平距離と（比高・勾配・角度）のいずれかから諸要素を算出
+- 度数法(DEG)から度分秒(DMS)への自動変換
+
+#### 三角関数
+- 角度からsin, cos, tanを算出
+
+#### 単曲線計算
+- 半径(R)と（交角IA・曲線長CL・弦長C）から諸要素を一括計算
+- TL, E, M, C, IAなどを算出
+
+#### 累加計算（カウンター）
+- 任意の開始値と増減値を設定
+- カウントアップ/ダウン機能
+- 履歴表示
+
+#### 一般電卓
+- 四則演算ができるシンプルな電卓
+
+### 📝 計算履歴機能
+- すべての計算結果を自動保存
+- 履歴からの復元機能（入力値も復元）
+- 計算結果のコピー機能
+- ブラウザリロード後もデータ保持（LocalStorage）
+
+### 📱 モバイル対応
+- レスポンシブデザイン（Mobile First）
+- ボトムナビゲーション（スマートフォン最適化）
+- タップ領域の最適化
+- モバイルキーボード対応（度分秒入力ボタン、マイナス入力ボタン）
+- ダークモード対応
+
+### 📖 操作マニュアル
+- アプリ内で操作マニュアルを閲覧可能
+- 各機能の使い方を詳細に説明
+- 更新履歴も表示
+
+### 📧 問い合わせ機能
+- 会社案内の表示
+- メールソフト連携によるお問い合わせ送信
+
+## 🛠️ 技術スタック
+
+### フロントエンド
+- **React 19.2** - UIライブラリ
+- **TypeScript 5.9** - 型安全性を確保
+- **Vite 7.3** - 高速ビルドツール
+- **React Router DOM 7.13** - ルーティング
+
+### UIコンポーネント
+- **Shadcn/UI** - モダンなUIコンポーネントライブラリ
+- **Radix UI** - アクセシブルなプリミティブコンポーネント
+- **Lucide React** - アイコンライブラリ
+- **TailwindCSS 4.1** - ユーティリティファーストCSSフレームワーク
+
+### 地図・可視化
+- **Leaflet 1.9** - 地図ライブラリ
+- **React Leaflet 5.0** - React用Leafletラッパー
+- **Recharts 3.7** - グラフ・チャートライブラリ
+
+### データ管理
+- **Dexie 4.3** - IndexedDBラッパー
+- **React Hook Form 7.71** - フォーム管理
+- **Zod 4.3** - スキーマバリデーション
+
+### 座標計算
+- **proj4 2.20** - 座標変換ライブラリ
+
+### ファイル操作
+- **PapaParse 5.5** - CSV解析
+- **xlsx 0.18** - Excel形式対応
+- **jsPDF 4.1** - PDF生成
+- **jsPDF-AutoTable 5.0** - PDFテーブル生成
+- **docx 9.5** - Word文書生成
+- **file-saver 2.0** - ファイルダウンロード
+
+### コード品質
+- **ESLint 9.39** - 静的解析ツール
+- **TypeScript ESLint** - TypeScript用Lint
+
+## 📦 セットアップ手順
+
+### 必要な環境
+- Node.js 18以上
+- npm または yarn
+
+### インストール
+
+```bash
+# リポジトリのクローン
+git clone https://github.com/yourusername/antigravity.git
+cd antigravity
+
+# 依存パッケージのインストール
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 開発サーバーの起動
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+ブラウザで `http://localhost:5173` を開いてアクセスできます。
+
+### ビルド
+
+```bash
+# 本番用ビルド
+npm run build
+
+# ビルド結果のプレビュー
+npm run preview
+```
+
+## 🚀 デプロイ
+
+このプロジェクトはVercelにデプロイされています。
+
+- **本番環境**: https://techno-scm.vercel.app
+- **自動デプロイ**: GitHubのmainブランチへのプッシュで自動デプロイ
+
+### Vercelへのデプロイ手順
+
+```bash
+# Vercel CLIのインストール（初回のみ）
+npm install -g vercel
+
+# プロジェクトのビルド
+npm run build
+
+# デプロイ（本番環境）
+vercel --prod
+```
+
+## 💡 使い方
+
+### 基本的なワークフロー
+
+1. **座標の登録**
+   - 「座標一覧」タブで「新規追加」ボタンをクリック
+   - 点名、座標（X, Y, Z）、標高などを入力
+   - または地図上をクリックして座標を登録
+
+2. **計算の実行**
+   - 「計算」タブで実行したい計算機能を選択
+   - 登録済みの点を選択、または手動入力
+   - 計算実行後、「一時記録」ボタンで履歴に保存
+
+3. **履歴の確認**
+   - 画面上部の履歴アイコンをクリック
+   - 保存された計算結果を確認
+   - 「復元」ボタンで入力値を復元可能
+
+4. **データのエクスポート**
+   - 「座標一覧」タブの「CSV出力」でデータをエクスポート
+   - 計算結果はクリップボードへコピー可能
+
+## 🎨 UI/UXの特徴
+
+- **アースカラー配色**: 目に優しく視認性の高い自然色ベース
+- **ゼブラストライプ**: 一覧表示での可読性向上
+- **カード型レイアウト**: 情報の整理と視認性向上
+- **ダークモード**: システム設定に連動または手動切替
+- **PC/モバイル表示切替**: 画面右上のアイコンで切替可能
+- **屋外での視認性**: 高コントラスト、大きめのフォント
+
+## 📄 ライセンス
+
+このプロジェクトは私的利用を目的としています。
+
+## 🏢 開発元
+
+株式会社テクノライン
+- Email: technoline@dream.ocn.ne.jp
+
+## 🔄 更新履歴
+
+### v1.6.0 (2026-02-16)
+- 建設電卓機能の追加（一般電卓タブ）
+- モバイル座標入力のマイナスボタン追加
+- ユーザーマニュアル v1.6.0 更新
+
+### v1.2.0
+- 水準測量（レベルブック）機能の追加
+- PDF出力機能の実装
+- 座標変換の一括変換機能
+
+### v1.0.0
+- Shadcn/UIの導入
+- モバイルファーストデザイン
+- 計算履歴機能
+- ヘルマート変換機能
+- 地図機能（住所検索、高解像度ズーム）
