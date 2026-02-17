@@ -19,7 +19,18 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v1.6.0 <span className="text-xs font-normal text-muted-foreground">2026/02/16</span>
+                                        v1.7.0 <span className="text-xs font-normal text-muted-foreground">2026/02/17</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>エクスポート機能改善</strong>: CSV/SIMA/PDF保存時にファイル名を指定できるように対応</li>
+                                        <li><strong>モバイルUI最適化</strong>: iPhone15準拠でヘッダー・ボタン・テーブル・計算画面のレイアウトを調整</li>
+                                        <li><strong>地図ズームボタン</strong>: 地図・簡易プロットにズームイン/アウトボタンを追加</li>
+                                        <li><strong>点登録方法の変更</strong>: 地図上の点登録は中心マーカーのタップのみに変更</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v1.6.0 <span className="text-xs font-normal">2026/02/16</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>建設電卓</strong>: 勾配・三角関数・単曲線・累加計算・一般電卓を搭載した電卓機能を追加</li>
@@ -141,7 +152,7 @@ export function Manual() {
                                     <h4 className="font-semibold">インポート・エクスポート</h4>
                                     <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                                         <li><strong>CSV/SIMA読込</strong>: 既存の座標データを一括で取り込めます。</li>
-                                        <li><strong>保存</strong>: CSV形式やSIMA形式でバックアップ・他ソフトへの連携が可能です。</li>
+                                        <li><strong>保存</strong>: CSV/SIMA/PDF形式で保存できます。保存時にファイル名を指定可能です。</li>
                                     </ul>
                                 </div>
                             </div>
@@ -151,9 +162,10 @@ export function Manual() {
                             <h3 className="text-lg font-bold border-b pb-1 text-primary">4. 地図・Webマップ (Map)</h3>
                             <p>地理院地図やGoogleマップ（風）のタイル上に座標を表示します。</p>
                             <ul className="list-disc pl-5 space-y-1 marker:text-primary">
-                                <li><strong>点登録</strong>: 地図上の任意の場所をクリックして「+」で新点を登録できます。</li>
+                                <li><strong>点登録</strong>: 地図中心の「+」マーカーをタップして新点を登録できます。</li>
                                 <li><strong>住所検索</strong>: 虫眼鏡アイコンから地名や住所で移動できます。</li>
                                 <li><strong>背景切替</strong>: レイヤーアイコンから地図の種類（標準・写真・淡色など）を変更できます。</li>
+                                <li><strong>ズーム</strong>: 右下のズームボタンで拡大・縮小ができます。</li>
                             </ul>
                         </section>
 

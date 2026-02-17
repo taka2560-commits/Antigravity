@@ -1,7 +1,7 @@
 import { createPDF, autoTable, type jsPDFWithAutoTable } from "./common"
 import type { Point } from "@/db"
 
-export async function generateCoordinateListPDF(points: Point[]) {
+export async function generateCoordinateListPDF(points: Point[], fileName: string = "座標一覧表") {
     const doc = await createPDF() as jsPDFWithAutoTable
 
     // Title
@@ -57,5 +57,5 @@ export async function generateCoordinateListPDF(points: Point[]) {
     })
 
     // Save
-    doc.save("座標一覧表.pdf")
+    doc.save(`${fileName}.pdf`)
 }

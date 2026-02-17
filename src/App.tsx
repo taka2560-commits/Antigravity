@@ -39,8 +39,8 @@ function App() {
             viewMode === "mobile" ? "max-w-md" : "max-w-7xl"
           )}>
             <div className="flex items-center gap-2 min-w-0 mr-4">
-              <h1 className="text-sm font-bold tracking-wider uppercase truncate" style={{ color: "var(--terracotta)" }}>
-                測量座標管理アプリ（Survey Coordinate Manager）
+              <h1 className="text-xs sm:text-sm font-bold tracking-wider uppercase truncate" style={{ color: "var(--terracotta)" }}>
+                測量座標管理<span className="hidden sm:inline">アプリ（Survey Coordinate Manager）</span>
               </h1>
 
               {/* PC Navigation (Visible only in PC mode) */}

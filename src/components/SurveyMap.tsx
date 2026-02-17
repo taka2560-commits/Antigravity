@@ -115,7 +115,7 @@ function CenterReticle({ onReticleClick }: { onReticleClick: (lat: number, lon: 
 function ZoomControls() {
     const map = useMap()
     return (
-        <div className="absolute bottom-24 right-4 z-[400] flex flex-col gap-1">
+        <div className="absolute bottom-28 right-4 z-[400] flex flex-col gap-1">
             <Button
                 variant="secondary"
                 size="icon"

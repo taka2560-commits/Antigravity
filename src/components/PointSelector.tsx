@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react"
-import { Search, X, Check } from "lucide-react"
+import { X, Check } from "lucide-react"
 import type { Point } from "../db"
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Input } from "./ui/input"
+
 import { ScrollArea } from "./ui/scroll-area"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { cn } from "@/lib/utils"
@@ -19,21 +19,12 @@ interface PointSelectorProps {
 
 export function PointSelector({ points, value, onSelect, label, placeholder = "点を選択", disabled }: PointSelectorProps) {
     const [open, setOpen] = useState(false)
-    const [search, setSearch] = useState("")
 
     const selectedPoint = useMemo(() => {
         return points?.find(p => String(p.id) === value)
     }, [points, value])
 
-    const filteredPoints = useMemo(() => {
-        if (!points) return []
-        if (!search) return points
-        const lower = search.toLowerCase()
-        return points.filter(p =>
-            p.name.toLowerCase().includes(lower) ||
-            String(p.id).includes(lower)
-        )
-    }, [points, search])
+
 
     const handleSelect = (id: string) => {
         onSelect(id)
@@ -68,23 +59,12 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                         >
                             <X className="h-full w-full" />
                         </div>
-                    ) : (
-                        <Search className="ml-auto h-3 w-3 shrink-0 opacity-50" />
-                    )}
+                    ) : null}
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[90vw] md:max-w-2xl h-[80vh] flex flex-col p-0 gap-0">
                 <DialogHeader className="p-4 pb-2 border-b">
                     <DialogTitle>{label || "点を選択"}</DialogTitle>
-                    <div className="relative mt-2">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="名前で検索..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="pl-8"
-                        />
-                    </div>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-hidden relative">
@@ -98,8 +78,8 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredPoints.length > 0 ? (
-                                    filteredPoints.map((p, index) => (
+                                {(points || []).length > 0 ? (
+                                    (points || []).map((p, index) => (
                                         <TableRow
                                             key={p.id}
                                             onClick={() => handleSelect(String(p.id))}
@@ -137,7 +117,7 @@ export function PointSelector({ points, value, onSelect, label, placeholder = "�
                 </div>
 
                 <div className="p-3 border-t text-sm text-center text-muted-foreground bg-muted/10">
-                    {filteredPoints.length} 件表示中
+                    {(points || []).length} 件表示中
                 </div>
             </DialogContent>
         </Dialog>

@@ -239,6 +239,8 @@ export function CoordinateTable() {
 
     const handleExportCSV = () => {
         if (!points || points.length === 0) return
+        const fileName = prompt("ファイル名を入力してください（拡張子不要）", "coordinates")
+        if (!fileName) return
         const csv = Papa.unparse(points.map(p => ({
             "点名": p.name,
             "X座標": p.x,
@@ -247,17 +249,19 @@ export function CoordinateTable() {
             "備考": p.note
         })))
         const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: "text/csv;charset=utf-8;" })
-        saveAs(blob, "coordinates.csv")
+        saveAs(blob, `${fileName}.csv`)
     }
 
     const handleExportSIMA = () => {
         if (!points || points.length === 0) return
+        const fileName = prompt("ファイル名を入力してください（拡張子不要）", "coordinates")
+        if (!fileName) return
         const sima = generateSima(points)
         const blob = new Blob([sima], { type: "application/octet-stream" })
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = "coordinates.sim"
+        a.download = `${fileName}.sim`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
@@ -283,21 +287,25 @@ export function CoordinateTable() {
                             onClick={handleImportClick}
                             className="h-9"
                         >
-                            <Upload className="mr-2 h-4 w-4" />
-                            インポート
+                            <Upload className="sm:mr-2 h-4 w-4" />
+                            <span className="hidden sm:inline">インポート</span>
                         </Button>
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-9">
-                                    <FileDown className="mr-2 h-4 w-4" />
-                                    エクスポート
+                                    <FileDown className="sm:mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">エクスポート</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>形式を選択</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => generateCoordinateListPDF(points || [])}>
+                                <DropdownMenuItem onClick={() => {
+                                    const fileName = prompt("ファイル名を入力してください（拡張子不要）", "座標一覧表")
+                                    if (!fileName) return
+                                    generateCoordinateListPDF(points || [], fileName)
+                                }}>
                                     PDF形式 (一覧表)
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -313,8 +321,8 @@ export function CoordinateTable() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-9 text-destructive border-destructive/20 hover:bg-destructive/10">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    整理
+                                    <Trash2 className="sm:mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">整理</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -333,8 +341,8 @@ export function CoordinateTable() {
                             size="sm"
                             className="h-9 bg-primary text-primary-foreground hover:bg-primary/90"
                         >
-                            <Plus className="mr-2 h-4 w-4" />
-                            新規登録
+                            <Plus className="sm:mr-2 h-4 w-4" />
+                            <span className="hidden sm:inline">新規登録</span>
                         </Button>
                     </div>
                 </div>
@@ -344,12 +352,12 @@ export function CoordinateTable() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px]">点名</TableHead>
-                                <TableHead className="text-right">X</TableHead>
-                                <TableHead className="text-right">Y</TableHead>
-                                <TableHead className="text-right hidden sm:table-cell">Z</TableHead>
-                                <TableHead className="hidden md:table-cell">備考</TableHead>
-                                <TableHead className="w-[80px]"></TableHead>
+                                <TableHead className="w-[80px] sm:w-[100px] text-xs">点名</TableHead>
+                                <TableHead className="text-right text-xs">X</TableHead>
+                                <TableHead className="text-right text-xs">Y</TableHead>
+                                <TableHead className="text-right hidden sm:table-cell text-xs">Z</TableHead>
+                                <TableHead className="hidden md:table-cell text-xs">備考</TableHead>
+                                <TableHead className="w-[50px] sm:w-[80px]"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

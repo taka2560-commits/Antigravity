@@ -638,6 +638,7 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
                                 name="Points"
                                 data={sortedData}
                                 fill="#ef4444"
+                                isAnimationActive={false}
                             >
                                 {sortedData.map((entry) => (
                                     <Cell

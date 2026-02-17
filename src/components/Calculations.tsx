@@ -56,9 +56,9 @@ export function Calculations() {
     return (
         <div className="space-y-4 h-full overflow-y-auto bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-1 md:p-4 rounded-lg shadow-sm">
             <div className="flex flex-col gap-4 px-1">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold tracking-tight">計算機能</h2>
+                        <h2 className="text-lg sm:text-xl font-bold tracking-tight">計算機能</h2>
                         <CalculationHistory onSelect={handleHistorySelect} />
                     </div>
 
