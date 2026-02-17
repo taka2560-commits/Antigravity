@@ -4,7 +4,7 @@ import { db } from "../db"
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
-import { Locate, Layers, Maximize, Minimize, Map as MapIcon, Grid, Search, Plus } from "lucide-react"
+import { Locate, Layers, Maximize, Minimize, Map as MapIcon, Grid, Search, Plus, ZoomIn, ZoomOut } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
 import { Input } from "./ui/input"
@@ -69,15 +69,6 @@ const TILE_LAYERS = {
     }
 }
 
-// Map Click Handler
-function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lon: number) => void }) {
-    useMapEvents({
-        click: (e) => {
-            onMapClick(e.latlng.lat, e.latlng.lng)
-        }
-    })
-    return null
-}
 
 // Component to handle map movement and state persistence
 function MapController({ center, zoom, onMoveEnd }: { center: [number, number] | null, zoom: number, onMoveEnd: (center: L.LatLng, zoom: number) => void }) {
@@ -117,6 +108,32 @@ function CenterReticle({ onReticleClick }: { onReticleClick: (lat: number, lon: 
             title="中心点として登録"
         >
             <Plus className="h-6 w-6" strokeWidth={3} />
+        </div>
+    )
+}
+
+function ZoomControls() {
+    const map = useMap()
+    return (
+        <div className="absolute bottom-24 right-4 z-[400] flex flex-col gap-1">
+            <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full shadow-lg h-9 w-9 bg-background/90 text-foreground border"
+                onClick={() => map.zoomIn()}
+                title="ズームイン"
+            >
+                <ZoomIn className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full shadow-lg h-9 w-9 bg-background/90 text-foreground border"
+                onClick={() => map.zoomOut()}
+                title="ズームアウト"
+            >
+                <ZoomOut className="h-4 w-4" />
+            </Button>
         </div>
     )
 }
@@ -512,8 +529,8 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                                 maxZoom={24} // Allow client-side zoom beyond native
                             />
                             <MapController center={mapCenter} zoom={zoom} onMoveEnd={handleMapMove} />
-                            <MapClickHandler onMapClick={handleMapClick} />
                             <CenterReticle onReticleClick={(lat, lon) => handleMapClick(lat, lon)} />
+                            <ZoomControls />
 
                             {/* User Location Marker */}
                             {userLocation && (

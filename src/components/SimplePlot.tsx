@@ -1,8 +1,8 @@
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts"
-import { useMemo, useState, useRef, useEffect } from "react"
-import { RotateCcw } from "lucide-react"
+import { useMemo, useState, useRef, useEffect, useCallback } from "react"
+import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Button } from "./ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
@@ -210,6 +210,19 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
         setDomainY([yCenter - newYRange / 2, yCenter + newYRange / 2])
     }
 
+    const handleZoom = (direction: 'in' | 'out') => {
+        if (!domainX || !domainY) return
+        const scale = direction === 'in' ? 0.8 : 1.25
+        const xRange = domainX[1] - domainX[0]
+        const yRange = domainY[1] - domainY[0]
+        const xCenter = (domainX[0] + domainX[1]) / 2
+        const yCenter = (domainY[0] + domainY[1]) / 2
+        const newXRange = xRange * scale
+        const newYRange = yRange * scale
+        setDomainX([xCenter - newXRange / 2, xCenter + newXRange / 2])
+        setDomainY([yCenter - newYRange / 2, yCenter + newYRange / 2])
+    }
+
     // Touch State
     const lastTouchDistance = useRef<number | null>(null)
     const lastTouchCenter = useRef<{ x: number; y: number } | null>(null)
@@ -387,23 +400,33 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
     const chartContainerRef = useRef<HTMLDivElement>(null)
 
     // Measure chart size for label collision detection
+    // 整数に丸めて微小変化によるリレンダリングループを防止
     useEffect(() => {
         if (!chartContainerRef.current) return
 
+        let rafId: number | null = null
         const updateSize = () => {
-            if (chartContainerRef.current) {
-                setChartSize({
-                    width: chartContainerRef.current.clientWidth,
-                    height: chartContainerRef.current.clientHeight
-                })
-            }
+            if (rafId) cancelAnimationFrame(rafId)
+            rafId = requestAnimationFrame(() => {
+                if (chartContainerRef.current) {
+                    const w = Math.round(chartContainerRef.current.clientWidth)
+                    const h = Math.round(chartContainerRef.current.clientHeight)
+                    setChartSize(prev => {
+                        if (prev.width === w && prev.height === h) return prev
+                        return { width: w, height: h }
+                    })
+                }
+            })
         }
 
         updateSize()
         const observer = new ResizeObserver(updateSize)
         observer.observe(chartContainerRef.current)
 
-        return () => observer.disconnect()
+        return () => {
+            observer.disconnect()
+            if (rafId) cancelAnimationFrame(rafId)
+        }
     }, [])
 
     // Determine visible labels based on overlap
@@ -457,6 +480,25 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
 
         return visible
     }, [sortedData, domainX, domainY, chartSize, highlightedPointId])
+
+    // LabelListのcontent関数を安定化（インライン関数による再レンダリングループ防止）
+    const renderLabel = useCallback((props: any) => {
+        const { x, y, value, index } = props
+        const point = sortedData[index]
+        if (!point || !visibleLabelIds.has(String(point.id))) return null
+        return (
+            <text
+                x={x}
+                y={y - 5}
+                fill="hsl(var(--foreground))"
+                fontSize={11}
+                fontWeight={600}
+                textAnchor="middle"
+            >
+                {value}
+            </text>
+        )
+    }, [sortedData, visibleLabelIds])
 
     if (!points || points.length === 0) {
         return (
@@ -609,23 +651,7 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
                                         dataKey="name"
                                         position="top"
                                         offset={5}
-                                        content={(props: any) => {
-                                            const { x, y, value, index } = props
-                                            const point = sortedData[index]
-                                            if (!visibleLabelIds.has(String(point.id))) return null
-                                            return (
-                                                <text
-                                                    x={x}
-                                                    y={y - 5}
-                                                    fill="hsl(var(--foreground))"
-                                                    fontSize={11}
-                                                    fontWeight={600}
-                                                    textAnchor="middle"
-                                                >
-                                                    {value}
-                                                </text>
-                                            )
-                                        }}
+                                        content={renderLabel}
                                     />
                                 )}
                             </Scatter>
@@ -633,6 +659,26 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
                     </ResponsiveContainer>
                     <div className="absolute bottom-1 right-1 text-[9px] text-muted-foreground/70 bg-background/50 p-0.5 rounded pointer-events-none">
                         Zoom: Scroll/Pinch | Pan: Drag
+                    </div>
+                    <div className="absolute bottom-8 right-2 z-10 flex flex-col gap-1">
+                        <Button
+                            variant="secondary"
+                            size="icon"
+                            className="rounded-full shadow-lg h-9 w-9 bg-background/90 text-foreground border"
+                            onClick={() => handleZoom('in')}
+                            title="ズームイン"
+                        >
+                            <ZoomIn className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            size="icon"
+                            className="rounded-full shadow-lg h-9 w-9 bg-background/90 text-foreground border"
+                            onClick={() => handleZoom('out')}
+                            title="ズームアウト"
+                        >
+                            <ZoomOut className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
             </CardContent>

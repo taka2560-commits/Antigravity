@@ -358,11 +358,16 @@ export function CoordinateTable() {
                                     key={point.id}
                                     className={index % 2 === 0 ? "bg-muted/20" : "bg-muted/50 hover:bg-muted/60"}
                                 >
-                                    <TableCell className="font-medium">{point.name}</TableCell>
-                                    <TableCell className="text-right font-mono">{(point.x ?? 0).toFixed(3)}</TableCell>
-                                    <TableCell className="text-right font-mono">{(point.y ?? 0).toFixed(3)}</TableCell>
-                                    <TableCell className="text-right font-mono hidden sm:table-cell">{(point.z ?? 0).toFixed(3)}</TableCell>
-                                    <TableCell className="hidden md:table-cell text-muted-foreground">{point.note}</TableCell>
+                                    <TableCell className="font-medium text-xs sm:text-sm">
+                                        {point.name}
+                                        {point.note && (
+                                            <div className="md:hidden text-[10px] text-muted-foreground truncate max-w-[120px]">{point.note}</div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right font-mono text-xs sm:text-sm">{(point.x ?? 0).toFixed(3)}</TableCell>
+                                    <TableCell className="text-right font-mono text-xs sm:text-sm">{(point.y ?? 0).toFixed(3)}</TableCell>
+                                    <TableCell className="text-right font-mono text-xs sm:text-sm hidden sm:table-cell">{(point.z ?? 0).toFixed(3)}</TableCell>
+                                    <TableCell className="hidden md:table-cell text-muted-foreground text-xs max-w-[150px] truncate">{point.note}</TableCell>
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
