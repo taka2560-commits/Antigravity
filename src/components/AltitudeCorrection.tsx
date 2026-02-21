@@ -3,7 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
 import { parseParameterFile, calculateCorrection, type AltitudeCorrectionParameter } from "../utils/altitudeCorrection"
 import { decimalToDms } from "../utils/coordinates"
-import { Upload, Save, AlertCircle, FileText, CheckCircle2, Trash2, Loader2 } from "lucide-react"
+import { Upload, Save, FileText, CheckCircle2, Trash2, Loader2 } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card"
 import { Button } from "./ui/button"
