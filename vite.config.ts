@@ -9,4 +9,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/api/geoid': {
+        target: 'https://vldb.gsi.go.jp/sokuchi/surveycalc/geoid/calcgh/cgi/geoidcalc.pl',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/geoid/, '')
+      }
+    }
+  }
 })

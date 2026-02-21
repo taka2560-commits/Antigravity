@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/geoid",
+            "destination": "https://vldb.gsi.go.jp/sokuchi/surveycalc/geoid/calcgh/cgi/geoidcalc.pl"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

@@ -17,7 +17,7 @@ export interface GeoidApiResult {
  */
 export async function fetchGeoidHeight(lat: number, lon: number): Promise<number | null> {
     try {
-        const url = `https://vldb.gsi.go.jp/sokuchi/surveycalc/geoid/calcgh/cgi/geoidcalc.pl?latitude=${lat}&longitude=${lon}&outputType=json`;
+        const url = `/api/geoid?latitude=${lat}&longitude=${lon}&outputType=json`;
         const response = await fetch(url);
 
         if (!response.ok) {
