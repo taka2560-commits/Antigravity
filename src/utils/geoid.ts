@@ -1,10 +1,12 @@
 export interface GeoidApiResult {
-    OutputData: {
+    OutputData?: {
         geoidHeight: string;
         latitude: string;
         longitude: string;
     };
-    ReturnFlag: string;
+    ExportData?: {
+        ErrMsg: string;
+    }
 }
 
 /**
@@ -25,8 +27,8 @@ export async function fetchGeoidHeight(lat: number, lon: number): Promise<number
 
         const data = await response.json() as GeoidApiResult;
 
-        // ReturnFlag が 1 の場合のみ成功
-        if (data.ReturnFlag === "1" && data.OutputData && data.OutputData.geoidHeight) {
+        // OutputData と geoidHeight が存在すれば成功
+        if (data.OutputData && data.OutputData.geoidHeight) {
             const geoidHeight = parseFloat(data.OutputData.geoidHeight);
             if (!isNaN(geoidHeight)) {
                 return geoidHeight;
