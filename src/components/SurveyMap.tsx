@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { SimplePlot } from "./SimplePlot"
+import { decimalToDms } from "../utils/coordinates"
 import { cn } from "../lib/utils"
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -375,11 +376,11 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label className="text-right">緯度</Label>
-                            <div className="col-span-3 text-sm font-mono">{newPoint?.lat.toFixed(7)}</div>
+                            <div className="col-span-3 text-sm font-mono">{newPoint?.lat !== undefined ? decimalToDms(newPoint.lat) : ''}</div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label className="text-right">経度</Label>
-                            <div className="col-span-3 text-sm font-mono">{newPoint?.lon.toFixed(7)}</div>
+                            <div className="col-span-3 text-sm font-mono">{newPoint?.lon !== undefined ? decimalToDms(newPoint.lon) : ''}</div>
                         </div>
                     </div>
                     <DialogFooter>
@@ -586,8 +587,8 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                                             <div className="text-sm">
                                                 <div className="font-bold mb-1">{p.name}</div>
                                                 <div className="text-xs text-muted-foreground font-mono">
-                                                    Lat: {p.lat?.toFixed(7)}<br />
-                                                    Lon: {p.lon?.toFixed(7)}
+                                                    Lat: {p.lat !== undefined ? decimalToDms(p.lat) : ''}<br />
+                                                    Lon: {p.lon !== undefined ? decimalToDms(p.lon) : ''}
                                                 </div>
                                                 {p.x !== undefined && (
                                                     <div className="text-xs text-muted-foreground font-mono mt-1 pt-1 border-t border-dashed">

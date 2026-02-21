@@ -162,3 +162,41 @@ export function decimalToDms(deg: number): string {
 
     return `${sign}${d}°${m.toString().padStart(2, '0')}′${s.toString().padStart(2, '0')}″`
 }
+
+/**
+ * 度分秒 (DMS) 形式の文字列または数値を 10進数の度数 (Decimal Degrees) に変換します。
+ * 国土地理院の標高パラメータ等の計算で厳密な変換が必要な場合に利用します。
+ * @param dms DMS文字列 (例: "35°40′52″", "35.4052" 等) ただしフォーマット依存
+ * @param d 度 (オプショナル)
+ * @param m 分 (オプショナル)
+ * @param s 秒 (オプショナル)
+ */
+export function dmsToDecimal(d: number, m: number, s: number): number {
+    const sign = d < 0 ? -1 : 1
+    const absD = Math.abs(d)
+    return sign * (absD + m / 60 + s / 3600)
+}
+
+/**
+ * DMSの文字列をパースして 10進数の度数に変換します
+ * 例: "35°40′52″" -> 35.68111...
+ */
+export function parseDmsString(dmsStr: string): number | null {
+    if (!dmsStr) return null;
+
+    // 度分秒の記号があるパターン (35°40′52″)
+    const match = dmsStr.match(/(-?\d+)[°度\s]+(\d+)[′'分\s]+([\d.]+)["″秒\s]*/);
+    if (match) {
+        return dmsToDecimal(
+            parseInt(match[1], 10),
+            parseInt(match[2], 10),
+            parseFloat(match[3])
+        );
+    }
+
+    // 単純な数値の場合 (10進数として解釈)
+    const val = parseFloat(dmsStr);
+    if (!isNaN(val)) return val;
+
+    return null;
+}

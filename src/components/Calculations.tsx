@@ -9,6 +9,7 @@ import { PointSelector } from "./PointSelector"
 import { LevelingBook } from "./LevelingBook"
 import { CalculationHistory } from "./CalculationHistory"
 import { ConstructionCalculator } from "./ConstructionCalculator"
+import { AltitudeCorrection } from "./AltitudeCorrection"
 import { useCalculationHistory, type HistoryItem } from "../hooks/useCalculationHistory"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
@@ -84,7 +85,7 @@ export function Calculations() {
 
                 {mode === "general" ? (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
+                        <TabsList className="grid w-full grid-cols-6 h-auto p-1 bg-muted/50">
                             <TabsTrigger value="inverse" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Ruler className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ST計算</span>
@@ -105,6 +106,10 @@ export function Calculations() {
                                 <Calculator className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>建設電卓</span>
                             </TabsTrigger>
+                            <TabsTrigger value="altitude" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 md:h-5 md:w-5"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
+                                <span>標高補正</span>
+                            </TabsTrigger>
                         </TabsList>
 
                         <div className="mt-4">
@@ -122,6 +127,9 @@ export function Calculations() {
                             </TabsContent>
                             <TabsContent value="calculator" className="m-0 space-y-4">
                                 <ConstructionCalculator />
+                            </TabsContent>
+                            <TabsContent value="altitude" className="m-0 space-y-4">
+                                <AltitudeCorrection />
                             </TabsContent>
                         </div>
                     </Tabs>

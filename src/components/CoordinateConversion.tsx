@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
-import { xyToLatLon, latLonToXY, ZONES } from "../utils/coordinates"
+import { xyToLatLon, latLonToXY, ZONES, decimalToDms } from "../utils/coordinates"
 import { Save, AlertCircle, ArrowDown, ClipboardList } from "lucide-react"
 
 import { PointSelector } from "./PointSelector"
@@ -102,7 +102,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
         let summary = ""
         if (direction === "xy2ll") {
             const res = singleResult as { lat: number, lon: number }
-            summary = `Lat: ${res.lat.toFixed(8)}\nLon: ${res.lon.toFixed(8)}`
+            summary = `Lat: ${decimalToDms(res.lat)}\nLon: ${decimalToDms(res.lon)}`
         } else {
             const res = singleResult as { x: number, y: number }
             summary = `X: ${res.x.toFixed(4)}\nY: ${res.y.toFixed(4)}`
@@ -372,11 +372,11 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                                             <div className="space-y-4 w-full">
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">緯度 (Latitude)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{(singleResult as any).lat.toFixed(8)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms((singleResult as any).lat)}</div>
                                                 </div>
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">経度 (Longitude)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{(singleResult as any).lon.toFixed(8)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms((singleResult as any).lon)}</div>
                                                 </div>
                                                 <div className="pt-2 text-[10px] text-muted-foreground">
                                                     ※世界測地系 (JGD2011)
@@ -434,7 +434,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                                             <span className="text-muted-foreground font-mono text-right">X:{p.x?.toFixed(2) ?? '-'}, Y:{p.y?.toFixed(2) ?? '-'}</span>
                                         ) : (
                                             <span className="text-muted-foreground font-mono text-right">
-                                                {p.lat && p.lon ? `Lat:${p.lat.toFixed(4)}...` : "Lat/Lon未設定"}
+                                                {p.lat && p.lon ? `Lat:${decimalToDms(p.lat)}` : "Lat/Lon未設定"}
                                             </span>
                                         )}
                                     </div>
