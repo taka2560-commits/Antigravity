@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
-import { Compass, ArrowRightLeft, Ruler, Calculator, ArrowRight, BookOpen, ClipboardList } from "lucide-react"
+import { Compass, ArrowRightLeft, Ruler, Calculator, ArrowRight, BookOpen, ClipboardList, Globe } from "lucide-react"
 import { HelmertTransformation } from "./HelmertTransformation"
 import { CoordinateConversion } from "./CoordinateConversion"
 import { TrueNorthCalculation } from "./TrueNorthCalculation"
@@ -10,6 +10,7 @@ import { LevelingBook } from "./LevelingBook"
 import { CalculationHistory } from "./CalculationHistory"
 import { ConstructionCalculator } from "./ConstructionCalculator"
 import { AltitudeCorrection } from "./AltitudeCorrection"
+import { GeoidCalculation } from "./GeoidCalculation"
 import { useCalculationHistory, type HistoryItem } from "../hooks/useCalculationHistory"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
@@ -85,7 +86,7 @@ export function Calculations() {
 
                 {mode === "general" ? (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-6 h-auto p-1 bg-muted/50">
+                        <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 h-auto p-1 bg-muted/50 gap-1">
                             <TabsTrigger value="inverse" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Ruler className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ST計算</span>
@@ -110,6 +111,10 @@ export function Calculations() {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 md:h-5 md:w-5"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
                                 <span>標高補正</span>
                             </TabsTrigger>
+                            <TabsTrigger value="geoid" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                                <Globe className="h-4 w-4 md:h-5 md:w-5" />
+                                <span>ｼﾞｵｲﾄﾞ高</span>
+                            </TabsTrigger>
                         </TabsList>
 
                         <div className="mt-4">
@@ -130,6 +135,9 @@ export function Calculations() {
                             </TabsContent>
                             <TabsContent value="altitude" className="m-0 space-y-4">
                                 <AltitudeCorrection />
+                            </TabsContent>
+                            <TabsContent value="geoid" className="m-0 space-y-4">
+                                <GeoidCalculation />
                             </TabsContent>
                         </div>
                     </Tabs>

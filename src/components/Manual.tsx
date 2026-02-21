@@ -19,7 +19,16 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v1.8.0 <span className="text-xs font-normal text-muted-foreground">2026/02/21</span>
+                                        v1.9.0 <span className="text-xs font-normal text-muted-foreground">2026/02/21</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>ジオイド高計算機能</strong>: 国土地理院のWeb APIを利用したジオイド高計算と、楕円体高⇔標高の相互変換機能を追加</li>
+                                        <li><strong>UIコンポーネントの追加</strong>: 選択項目（RadioGroup）を用いて変換モードを切り替えられるよう改善</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v1.8.0 <span className="text-xs font-normal">2026/02/21</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>標高改定対応</strong>: 国土地理院の標高補正パラメータファイル (.par) を用いた水準点の標高補正計算機能を追加</li>
@@ -130,6 +139,10 @@ export function Manual() {
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">標高改定対応</span>
                                             <span className="text-[10px] text-muted-foreground">パラメータファイル(.par)を用いた標高補正</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">ジオイド高</span>
+                                            <span className="text-[10px] text-muted-foreground">国土地理院APIを利用したジオイド高取得</span>
                                         </div>
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">水準測量 (Leveling)</span>
