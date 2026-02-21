@@ -32,9 +32,16 @@ export interface LevelingSession {
     updatedAt: number;
 }
 
+export interface AppSetting {
+    key: string;
+    value: string; // 巨大なテキストデータなどを格納可能
+    updatedAt: number;
+}
+
 const db = new Dexie('SurveyDatabase') as Dexie & {
     points: EntityTable<Point, 'id'>;
     levelings: EntityTable<LevelingSession, 'id'>;
+    settings: EntityTable<AppSetting, 'key'>;
 };
 
 db.version(1).stores({
@@ -47,6 +54,10 @@ db.version(2).stores({
 
 db.version(3).stores({
     levelings: '++id, date, name, updatedAt'
+});
+
+db.version(4).stores({
+    settings: 'key'
 });
 
 export { db };

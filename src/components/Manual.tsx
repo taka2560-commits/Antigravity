@@ -19,7 +19,20 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v1.7.0 <span className="text-xs font-normal text-muted-foreground">2026/02/17</span>
+                                        v1.8.0 <span className="text-xs font-normal text-muted-foreground">2026/02/21</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>標高改定対応</strong>: 国土地理院の標高補正パラメータファイル (.par) を用いた水準点の標高補正計算機能を追加</li>
+                                        <li><strong>パラメータの自動保存</strong>: 読み込んだパラメータファイルをブラウザ内に保存し、次回起動時もすぐに利用可能に改善</li>
+                                        <li><strong>DMS表示対応</strong>: 各画面での緯度・経度の表示を一般的な度分秒 (DMS) フォーマットに統一</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v1.7.0 <span className="text-xs font-normal">2026/02/17</span>
+                                    </h4>
+                                    <h4 className="font-bold flex items-center gap-2">
+                                        v1.7.0 <span className="text-xs font-normal">2026/02/17</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>エクスポート機能改善</strong>: CSV/SIMA/PDF保存時にファイル名を指定できるように対応</li>
@@ -113,6 +126,10 @@ export function Manual() {
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">座標変換 (Lat/Lon)</span>
                                             <span className="text-[10px] text-muted-foreground">緯度経度 ⇔ 平面直角座標(XY)</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">標高改定対応</span>
+                                            <span className="text-[10px] text-muted-foreground">パラメータファイル(.par)を用いた標高補正</span>
                                         </div>
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">水準測量 (Leveling)</span>

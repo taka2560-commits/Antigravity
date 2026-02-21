@@ -1,60 +1,45 @@
-import { parseDmsString } from "./coordinates"
-
 /**
  * 標高改定パラメータ (.par または .isg) の解析と
- * 緯度経度に基づく補間計算（バイリニア補間など）を行うユーティリティ。
+ * 緯度経度に基づく補間計算（バイリニア補間）を行うユーティリティ。
  */
 
 // パラメータデータの内部表現
 export interface AltitudeCorrectionParameter {
-    // メッシュのヘッダ情報等が必要に応じて追加されます
-    latMin: number;
-    latMax: number;
-    lonMin: number;
-    lonMax: number;
-    dLat: number; // 緯度方向のグリッド間隔
-    dLon: number; // 経度方向のグリッド間隔
-    rows: number;
-    cols: number;
-    grid: number[][]; // 補正値の二次元配列
+    map: Map<number, number>; // メッシュコード(数値化) をキーにした補正値
 }
 
 /**
- * .par または .isg ファイルのパース関数（簡易実装）
- * @param content ファイルのテキストデータ
+ * .par ファイルのパース関数
+ * 国土地理院のPatchJGD(H)用 3次メッシュパラメータを想定
  */
 export function parseParameterFile(content: string): AltitudeCorrectionParameter | null {
-    // TODO: 実際の国土地理院のフォーマット詳細に合わせたパーサの実装
-    // ここでは一般的なASCIIグリッド形式や、簡易的な読込を想定したモックとしています。
     try {
-        const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length === 0) return null;
+        const lines = content.split('\n');
+        const map = new Map<number, number>();
+        let valid = false;
 
-        // ヘッダ情報が含まれていると想定
-        // 例: latMin, latMax, lonMin, lonMax, dLat, dLon などを取得
-        // ※ もしパラメータのヘッダ領域に「35°40′52″」や「354052.12」のようなDMS形式で記述されていた場合、
-        // インポートした `parseDmsString` を用いて 10進数の Decimal Degrees (例：35.6811...) 全て変換してから格納してください。
-        // 例: latMin: parseDmsString(headerMatchLatMin) ?? 0
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (line.length < 18) continue;
 
-        // 将来のDMSフォーマットパーステスト用 (Linter回避を兼ねる)
-        if (false) {
-            console.log(parseDmsString("35°40′52″"));
+            // 先頭8文字が数値化できればメッシュコードと判定
+            const codeStr = line.slice(0, 8);
+            if (!/^\d{8}$/.test(codeStr)) continue;
+
+            const code = parseInt(codeStr, 10);
+            const dhStr = line.slice(8, 18).trim();
+            const dh = parseFloat(dhStr);
+
+            if (!isNaN(dh)) {
+                map.set(code, dh);
+                valid = true;
+            }
         }
 
-        // 本格的なISGフォーマット(geoid等)の場合は、専用のパースが必要
+        // 有効なデータが1つも無ければパース失敗
+        if (!valid) return null;
 
-        // とりあえずダミーとして、全体をカバーするゼロのグリッドを返す（後で実装）
-        return {
-            latMin: 20, // (必要に応じて parseDmsString("20°00′00″") 等に置き換え可能)
-            latMax: 50,
-            lonMin: 120,
-            lonMax: 150,
-            dLat: 0.1,  // (必要に応じて度数へ変換)
-            dLon: 0.1,
-            rows: 300,
-            cols: 300,
-            grid: Array(300).fill(0).map(() => Array(300).fill(0))
-        };
+        return { map };
     } catch (e) {
         console.error("Failed to parse parameter file:", e);
         return null;
@@ -62,48 +47,69 @@ export function parseParameterFile(content: string): AltitudeCorrectionParameter
 }
 
 /**
+ * 緯度・経度のインデックス値から、該当する3次メッシュのコード数値を算出する
+ */
+function getMeshCodeAsNumber(latIndex: number, lonIndex: number): number {
+    const p = Math.floor(latIndex / 80);
+    const remLat = latIndex % 80;
+    const q = Math.floor(remLat / 10);
+    const r = remLat % 10;
+
+    const u = Math.floor(lonIndex / 80);
+    const remLon = lonIndex % 80;
+    const v = Math.floor(remLon / 10);
+    const w = remLon % 10;
+
+    return p * 1000000 + u * 10000 + q * 1000 + v * 100 + r * 10 + w;
+}
+
+/**
  * 補正値のバイリニア補間計算
  * @param params パラメータデータ
- * @param lat 緯度
- * @param lon 経度
+ * @param lat 緯度 (10進数)
+ * @param lon 経度 (10進数)
  */
 export function calculateCorrection(params: AltitudeCorrectionParameter, lat: number, lon: number): number | null {
-    if (lat < params.latMin || lat > params.latMax || lon < params.lonMin || lon > params.lonMax) {
-        // 範囲外
-        return null;
-    }
-
-    // グリッドインデックスの計算
-    // ※ 一般的なグリッドファイル（GSI等）では、
-    //   配列の行(row=0) が北端 (latMax)、行の終端が南端 (latMin)
-    //   配列の列(col=0) が西端 (lonMin)、列の終端が東端 (lonMax)
-    // のように並んでいるケースが多いです。そのため、latIndexのエラーや配列へのアクセスの向きに注意が必要です。
-    // ここでは「latMin が row=0 (南から北へ並ぶ)」前提の式でしたが、一般的な「北から南」形式もサポートできる形に再構成します。
-
-    // 配列の並び仕様に合わせてインデックスを計算 (ここでは南から北（latMinからlatMax）に並んでいるという前提を維持しつつ計算を明確化します)
-    // もし提供されるファイルが「北から南」なら dLat はマイナスになり、latIndexExact も変わりますが、現状 dLat > 0 と仮定。
-
-    const latIndexExact = (lat - params.latMin) / params.dLat;
-    const lonIndexExact = (lon - params.lonMin) / params.dLon;
+    // 緯度の3次メッシュグリッド間隔は 30秒 = 1/120度 -> lat * 120 がインデックス
+    // 経度の3次メッシュグリッド間隔は 45秒 = 1/80度  -> (lon - 100) * 80 がインデックス
+    const latIndexExact = lat * 120;
+    const lonIndexExact = (lon - 100) * 80;
 
     const lat0 = Math.floor(latIndexExact); // 南側のインデックス
     const lon0 = Math.floor(lonIndexExact); // 西側のインデックス
-    const lat1 = Math.min(lat0 + 1, params.rows - 1); // 北側のインデックス
-    const lon1 = Math.min(lon0 + 1, params.cols - 1); // 東側のインデックス
+    const lat1 = lat0 + 1; // 北側のインデックス
+    const lon1 = lon0 + 1; // 東側のインデックス
 
     // 0からの端数 (0.0 〜 1.0)
     const dLatFraction = latIndexExact - lat0;
     const dLonFraction = lonIndexExact - lon0;
 
-    // グリッドの 4 点の値を取得 (存在しない場合は 0 ではなく計算エラー等にするべきですが現状は 0 フォールバック)
-    const v00 = params.grid[lat0]?.[lon0] ?? 0; // (南, 西)
-    const v01 = params.grid[lat0]?.[lon1] ?? 0; // (南, 東)
-    const v10 = params.grid[lat1]?.[lon0] ?? 0; // (北, 西)
-    const v11 = params.grid[lat1]?.[lon1] ?? 0; // (北, 東)
+    // 四隅のメッシュコードを計算
+    const code00 = getMeshCodeAsNumber(lat0, lon0);
+    const code01 = getMeshCodeAsNumber(lat0, lon1);
+    const code10 = getMeshCodeAsNumber(lat1, lon0);
+    const code11 = getMeshCodeAsNumber(lat1, lon1);
+
+    // 四隅の補正値を取得
+    const v00 = params.map.get(code00); // (南, 西)
+    const v01 = params.map.get(code01); // (南, 東)
+    const v10 = params.map.get(code10); // (北, 西)
+    const v11 = params.map.get(code11); // (北, 東)
+
+    // 全ての頂点が存在しない場合は、範囲外（対象エリア外）とする
+    if (v00 === undefined && v01 === undefined && v10 === undefined && v11 === undefined) {
+        return null; // 範囲外
+    }
+
+    // 欠損している角は 0.0 として扱い、補間を継続する（海沿いなどの端数対応）
+    const val00 = v00 ?? 0;
+    const val01 = v01 ?? 0;
+    const val10 = v10 ?? 0;
+    const val11 = v11 ?? 0;
 
     // 1. 経度 (X方向) での補間 (南側エッジと北側エッジ)
-    const valSouth = v00 * (1 - dLonFraction) + v01 * dLonFraction;
-    const valNorth = v10 * (1 - dLonFraction) + v11 * dLonFraction;
+    const valSouth = val00 * (1 - dLonFraction) + val01 * dLonFraction;
+    const valNorth = val10 * (1 - dLonFraction) + val11 * dLonFraction;
 
     // 2. 緯度 (Y方向) での補間
     const value = valSouth * (1 - dLatFraction) + valNorth * dLatFraction;
