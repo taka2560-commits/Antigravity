@@ -44,7 +44,7 @@ export const ELEVATION_SYSTEMS: ElevationSystem[] = [
     {
         name: "神戸港基準面",
         abbr: "K.P.",
-        offsetFromTP: -0.4066,
+        offsetFromTP: -0.8934,
         description: "神戸港修築工事基準面",
         region: "神戸港周辺"
     },
