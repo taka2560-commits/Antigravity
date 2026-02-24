@@ -11,6 +11,7 @@ import { CalculationHistory } from "./CalculationHistory"
 import { ConstructionCalculator } from "./ConstructionCalculator"
 import { AltitudeCorrection } from "./AltitudeCorrection"
 import { GeoidCalculation } from "./GeoidCalculation"
+import { ElevationConversion } from "./ElevationConversion"
 import { useCalculationHistory, type HistoryItem } from "../hooks/useCalculationHistory"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
@@ -86,7 +87,7 @@ export function Calculations() {
 
                 {mode === "general" ? (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 h-auto p-1 bg-muted/50 gap-1">
+                        <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 h-auto p-1 bg-muted/50 gap-1">
                             <TabsTrigger value="inverse" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Ruler className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ST計算</span>
@@ -115,6 +116,10 @@ export function Calculations() {
                                 <Globe className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ｼﾞｵｲﾄﾞ高</span>
                             </TabsTrigger>
+                            <TabsTrigger value="elevsys" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                                <ArrowRightLeft className="h-4 w-4 md:h-5 md:w-5" />
+                                <span>標高系</span>
+                            </TabsTrigger>
                         </TabsList>
 
                         <div className="mt-4">
@@ -138,6 +143,9 @@ export function Calculations() {
                             </TabsContent>
                             <TabsContent value="geoid" className="m-0 space-y-4">
                                 <GeoidCalculation />
+                            </TabsContent>
+                            <TabsContent value="elevsys" className="m-0 space-y-4">
+                                <ElevationConversion />
                             </TabsContent>
                         </div>
                     </Tabs>
