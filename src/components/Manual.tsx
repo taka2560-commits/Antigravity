@@ -22,7 +22,7 @@ export function Manual() {
                                         v2.0.0 <span className="text-xs font-normal text-muted-foreground">2026/02/24</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
-                                        <li><strong>標高系変換機能</strong>: 日本の代表的な標高基準（T.P., O.P., A.P., Y.P., K.P.）の相互変換機能を追加</li>
+                                        <li><strong>標高系変換機能</strong>: 日本の代表的な標高基準（T.P., O.P., K.P., N.P.）の相互変換機能を追加</li>
                                     </ul>
                                 </div>
                                 <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
@@ -154,7 +154,7 @@ export function Manual() {
                                         </div>
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">標高系変換</span>
-                                            <span className="text-[10px] text-muted-foreground">T.P., O.P., A.P., Y.P., K.P.の相互変換</span>
+                                            <span className="text-[10px] text-muted-foreground">T.P., O.P., K.P., N.P.の相互変換</span>
                                         </div>
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">水準測量 (Leveling)</span>

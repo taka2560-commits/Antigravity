@@ -42,32 +42,18 @@ export const ELEVATION_SYSTEMS: ElevationSystem[] = [
         region: "大阪湾・淀川流域"
     },
     {
-        name: "荒川工事基準面",
-        abbr: "A.P.",
-        offsetFromTP: -1.1344,
-        description: "霊岸島量水標の0mを基準",
-        region: "東京都（荒川・隅田川流域）"
-    },
-    {
-        name: "江戸川工事基準面",
-        abbr: "Y.P.",
-        offsetFromTP: -0.8402,
-        description: "堀江水位観測所の水位標0mを基準",
-        region: "千葉県（江戸川・利根川流域）"
-    },
-    {
-        name: "利根川工事基準面",
-        abbr: "Y.P.(利根川)",
-        offsetFromTP: -0.8402,
-        description: "Y.P.と同一基準面（利根川流域で使用）",
-        region: "茨城県・千葉県（利根川流域）"
-    },
-    {
-        name: "北上川工事基準面",
+        name: "神戸港基準面",
         abbr: "K.P.",
-        offsetFromTP: -0.0873,
-        description: "北上川の工事基準面",
-        region: "岩手県・宮城県（北上川流域）"
+        offsetFromTP: -0.4066,
+        description: "神戸港修築工事基準面",
+        region: "神戸港周辺"
+    },
+    {
+        name: "名古屋港基準面",
+        abbr: "N.P.",
+        offsetFromTP: -1.4120,
+        description: "名古屋港の基準面",
+        region: "名古屋港周辺"
     },
 ];
 
