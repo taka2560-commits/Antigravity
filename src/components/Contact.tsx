@@ -12,7 +12,7 @@ export function Contact() {
     const [body, setBody] = useState("")
 
     const handleSend = () => {
-        const mailtoLink = `mailto:technoline@dream.ocn.ne.jp?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`名前: ${name}\n\n${body}`)}`
+        const mailtoLink = `mailto:yota2560@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`名前: ${name}\n\n${body}`)}`
         window.location.href = mailtoLink
     }
 
