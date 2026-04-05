@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db"
-import { Compass, ArrowRightLeft, Ruler, Calculator, ArrowRight, BookOpen, ClipboardList, Globe } from "lucide-react"
+import { Compass, ArrowRightLeft, Ruler, Calculator, ArrowRight, BookOpen, ClipboardList, Globe, GitCommit } from "lucide-react"
 import { HelmertTransformation } from "./HelmertTransformation"
 import { CoordinateConversion } from "./CoordinateConversion"
 import { TrueNorthCalculation } from "./TrueNorthCalculation"
@@ -12,6 +12,7 @@ import { ConstructionCalculator } from "./ConstructionCalculator"
 import { AltitudeCorrection } from "./AltitudeCorrection"
 import { GeoidCalculation } from "./GeoidCalculation"
 import { ElevationConversion } from "./ElevationConversion"
+import { OffsetCalculation } from "./OffsetCalculation"
 import { useCalculationHistory, type HistoryItem } from "../hooks/useCalculationHistory"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
@@ -87,7 +88,7 @@ export function Calculations() {
 
                 {mode === "general" ? (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 h-auto p-1 bg-muted/50 gap-1">
+                        <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 h-auto p-1 bg-muted/50 gap-1">
                             <TabsTrigger value="inverse" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
                                 <Ruler className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>ST計算</span>
@@ -120,6 +121,10 @@ export function Calculations() {
                                 <ArrowRightLeft className="h-4 w-4 md:h-5 md:w-5" />
                                 <span>標高系</span>
                             </TabsTrigger>
+                            <TabsTrigger value="offset" className="flex-col gap-1 py-1 text-[10px] md:text-xs data-[state=active]:bg-[var(--sage)] data-[state=active]:text-[var(--sage-foreground)]">
+                                <GitCommit className="h-4 w-4 md:h-5 md:w-5" />
+                                <span>幅杭計算</span>
+                            </TabsTrigger>
                         </TabsList>
 
                         <div className="mt-4">
@@ -146,6 +151,9 @@ export function Calculations() {
                             </TabsContent>
                             <TabsContent value="elevsys" className="m-0 space-y-4">
                                 <ElevationConversion />
+                            </TabsContent>
+                            <TabsContent value="offset" className="m-0 space-y-4">
+                                <OffsetCalculation />
                             </TabsContent>
                         </div>
                     </Tabs>

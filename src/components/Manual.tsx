@@ -19,7 +19,15 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v2.0.0 <span className="text-xs font-normal text-muted-foreground">2026/02/24</span>
+                                        v2.1.0 <span className="text-xs font-normal text-muted-foreground">2026/04/05</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>幅杭計算（オフセット計算）機能</strong>: 基準線に対する前進距離と左右の幅を指定し、新しい座標を一括計算・登録できる機能を追加</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v2.0.0 <span className="text-xs font-normal">2026/02/24</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>標高系変換機能</strong>: 日本の代表的な標高基準（T.P., O.P., K.P., N.P.）の相互変換機能を追加</li>
@@ -155,6 +163,10 @@ export function Manual() {
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">標高系変換</span>
                                             <span className="text-[10px] text-muted-foreground">T.P., O.P., K.P., N.P.の相互変換</span>
+                                        </div>
+                                        <div className="bg-muted/30 p-2 rounded border">
+                                            <span className="font-bold text-xs block">幅杭計算</span>
+                                            <span className="text-[10px] text-muted-foreground">基準線からの距離と離れによる座標計算</span>
                                         </div>
                                         <div className="bg-muted/30 p-2 rounded border">
                                             <span className="font-bold text-xs block">水準測量 (Leveling)</span>
