@@ -19,7 +19,19 @@ export function Manual() {
                             <div className="space-y-4">
                                 <div className="border-l-2 border-primary pl-4 ml-1">
                                     <h4 className="font-bold flex items-center gap-2">
-                                        v2.1.0 <span className="text-xs font-normal text-muted-foreground">2026/04/05</span>
+                                        v3.0.0 <span className="text-xs font-normal text-muted-foreground">2026/08/11</span>
+                                    </h4>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
+                                        <li><strong>複数現場（プロジェクト）管理機能</strong>: 座標データや野帳を現場（プロジェクト）ごとに個別管理・整理・切り替えができる機能を追加</li>
+                                        <li><strong>全データ一括バックアップ＆復元 (JSON)</strong>: 全現場・全座標・水準野帳・計算履歴を一括でJSON保存・インポート復元できる機能を追加</li>
+                                        <li><strong>PWA (Progressive Web App) オフライン対応</strong>: サービスワーカー構築により山間部や地下などのオフライン現場環境での完全動作に対応</li>
+                                        <li><strong>Webパフォーマンス最適化</strong>: コード分割によりメインJSバンドルを 1.84MB → 542KB (約70%削減) へ超軽量化</li>
+                                        <li><strong>コード品質・React 19・TypeScript適合</strong>: ESLint全61件のエラー修復、React 19 Hooks規約、TypeScript型安全性を全面強化</li>
+                                    </ul>
+                                </div>
+                                <div className="border-l-2 border-muted pl-4 ml-1 opacity-80">
+                                    <h4 className="font-bold flex items-center gap-2 text-muted-foreground">
+                                        v2.1.0 <span className="text-xs font-normal">2026/04/05</span>
                                     </h4>
                                     <ul className="list-disc pl-5 mt-1 space-y-1 text-xs md:text-sm">
                                         <li><strong>幅杭計算（オフセット計算）機能</strong>: 基準線に対する前進距離と左右の幅を指定し、新しい座標を一括計算・登録できる機能を追加</li>
