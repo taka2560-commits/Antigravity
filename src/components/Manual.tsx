@@ -141,15 +141,50 @@ export function Manual() {
                             <h3 className="text-lg font-bold border-b pb-1 text-primary">1. 画面構成</h3>
                             <p>画面下のメニューバー（PCは上部）から機能を切り替えます。</p>
                             <ul className="list-disc pl-5 space-y-1 marker:text-primary">
-                                <li><strong>一覧 (List)</strong>: 座標データの登録・編集・インポート</li>
-                                <li><strong>計算 (Calc)</strong>: 各種測量計算・変換</li>
+                                <li><strong>一覧 (List)</strong>: 座標データの登録・編集・現場管理・バックアップ</li>
+                                <li><strong>計算 (Calc)</strong>: 各種測量計算・変換・水準野帳</li>
                                 <li><strong>地図 (Map)</strong>: 地図上での確認・登録</li>
                                 <li><strong>簡易 (Plot)</strong>: シンプルな座標展開図</li>
                             </ul>
                         </section>
 
                         <section className="space-y-2">
-                            <h3 className="text-lg font-bold border-b pb-1 text-primary">2. 計算機能と履歴 (Calc & History)</h3>
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">2. 複数現場（プロジェクト）管理</h3>
+                            <p>登録された座標や水準野帳データを現場（プロジェクト）ごとに整理・切替・削除できます。</p>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                <li><strong>現場の切り替え</strong>: 座標一覧ヘッダーの建物アイコンボタン（「全現場」または現場名）をタップし、一覧から選択します。</li>
+                                <li><strong>新規現場の登録</strong>: 「新しい現場を追加」ボタンから現場名とメモを入力して登録できます。</li>
+                                <li><strong>全現場表示モード</strong>: 「すべての座標を表示」を選択すると、現場を問わず全登録データの一覧・検索が可能です。</li>
+                                <li><strong>自動割り当て</strong>: 現場を選択した状態で「新規登録」や「CSV/SIMAインポート」を行うと、自動的に選択中の現場にデータが分類されます。</li>
+                            </ul>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">3. 一括バックアップ＆復元 (JSON)</h3>
+                            <p>全現場・全座標・水準野帳・計算履歴を一括でファイル保存し、新しい端末やブラウザに移行できます。</p>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                <li><strong>一括バックアップ</strong>: 座標一覧ヘッダーの「バックアップ/復元」ボタンから【全バックアップJSONをダウンロード】を押すと、全データが1つのファイルとして保存されます。</li>
+                                <li><strong>復元 (リストア)</strong>: 【バックアップJSONファイルを選択して復元】を押してファイルを選択します。</li>
+                                <li><strong>復元モードの選択</strong>:
+                                    <ul className="list-circle pl-5 space-y-0.5 text-xs text-muted-foreground mt-1">
+                                        <li>・<strong>統合モード</strong>: 現在のデータにバックアップ内容を追加・統合します。</li>
+                                        <li>・<strong>上書きモード</strong>: 現在のデータを全消去し、バックアップデータに完全置き換えます。</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">4. PWA オフライン利用（現場対応）</h3>
+                            <p>山間部や地下など電波が届かない測量現場でも完全にアプリとして動作します。</p>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-primary">
+                                <li><strong>ホーム画面に追加</strong>: スマートフォンのブラウザメニュー（共有・設定）から「ホーム画面に追加」を実行するとアプリとして使用できます。</li>
+                                <li><strong>オフライン完全動作</strong>: 一度読み込めばインターネット接続が切れた環境でも全計算・ローカルデータベースの操作が問題なく行えます。</li>
+                            </ul>
+                        </section>
+
+                        <section className="space-y-2">
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">5. 計算機能と履歴 (Calc & History)</h3>
                             <p>様々な測量計算を行い、結果をブラウザに保存・復元できます。</p>
 
                             <div className="space-y-3 mt-2">
@@ -203,7 +238,7 @@ export function Manual() {
                         </section>
 
                         <section className="space-y-2">
-                            <h3 className="text-lg font-bold border-b pb-1 text-primary">3. 座標一覧 (List)</h3>
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">6. 座標一覧 (List)</h3>
                             <div className="space-y-3">
                                 <div>
                                     <h4 className="font-semibold">データの登録・編集</h4>
@@ -225,7 +260,7 @@ export function Manual() {
                         </section>
 
                         <section className="space-y-2">
-                            <h3 className="text-lg font-bold border-b pb-1 text-primary">4. 地図・Webマップ (Map)</h3>
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">7. 地図・Webマップ (Map)</h3>
                             <p>地理院地図やGoogleマップ（風）のタイル上に座標を表示します。</p>
                             <ul className="list-disc pl-5 space-y-1 marker:text-primary">
                                 <li><strong>点登録</strong>: 地図中心の「+」マーカーをタップして新点を登録できます。</li>
@@ -236,7 +271,7 @@ export function Manual() {
                         </section>
 
                         <section className="space-y-2">
-                            <h3 className="text-lg font-bold border-b pb-1 text-primary">5. 建設電卓 (Construction Calc)</h3>
+                            <h3 className="text-lg font-bold border-b pb-1 text-primary">8. 建設電卓 (Construction Calc)</h3>
                             <p>現場で役立つ計算機能をまとめた電卓です。</p>
                             <div className="space-y-3 mt-2">
                                 <ul className="list-disc pl-5 space-y-1 marker:text-primary">
