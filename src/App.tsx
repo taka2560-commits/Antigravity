@@ -3,6 +3,7 @@ import { CalculationHistoryProvider } from "./hooks/useCalculationHistory"
 import { ActiveProjectProvider } from "./hooks/useActiveProject"
 import { CoordinateTable } from "./components/CoordinateTable"
 import { ErrorBoundary } from "./components/ErrorBoundary"
+import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt"
 import { Map, Calculator, List, Monitor, Smartphone, BookOpen, Mail, Loader2 } from "lucide-react"
 import { Button } from "./components/ui/button"
 import { Card } from "./components/ui/card"
@@ -264,6 +265,7 @@ function App() {
             </div>
           </nav>
         )}
+        <PWAUpdatePrompt />
       </div>
     </CalculationHistoryProvider>
     </ActiveProjectProvider>
