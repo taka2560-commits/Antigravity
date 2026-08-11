@@ -41,7 +41,7 @@ export async function generateCoordinateListPDF(points: Point[], fileName: strin
     })
 
     // Footer
-    const pageCount = (doc.internal as any).getNumberOfPages()
+    const pageCount = (doc.internal as unknown as { getNumberOfPages: () => number }).getNumberOfPages()
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i)
         doc.setFontSize(8)

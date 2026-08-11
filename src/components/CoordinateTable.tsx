@@ -27,18 +27,19 @@ import {
 } from "./ui/dialog"
 import { Label } from "./ui/label"
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { useCalculationHistory } from "../hooks/useCalculationHistory"
+import { useActiveProject } from "../hooks/useActiveProject"
+import { ProjectManager } from "./ProjectManager"
+import { BackupManager } from "./BackupManager"
 
 export function CoordinateTable() {
-    const points = useLiveQuery(() => db.points.toArray())
+    const { activeProjectId } = useActiveProject()
+    const allPoints = useLiveQuery(() => db.points.toArray())
+    const points = activeProjectId === "all"
+        ? allPoints
+        : allPoints?.filter(p => p.projectId === activeProjectId)
+
     const { addHistory } = useCalculationHistory()
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingPoint, setEditingPoint] = useState<Point | null>(null)
@@ -157,7 +158,7 @@ export function CoordinateTable() {
                     header: false, // Parse as array of arrays first
                     skipEmptyLines: true,
                     complete: async (results) => {
-                        const rows = results.data as any[][]
+                        const rows = results.data as Array<Array<string | number>>
                         if (rows.length === 0) return
 
                         // Heuristic: Check if first row is header
@@ -166,7 +167,7 @@ export function CoordinateTable() {
                             firstRow.some(cell => cell.toLowerCase() === k || cell === "X" || cell === "Y" || cell.includes("座標"))
                         )
 
-                        let importedPoints: any[] = []
+                        let importedPoints: Array<{ name: string; x: number; y: number; z: number; note: string }> = []
 
                         if (isHeader) {
                             // Map by header name
@@ -178,28 +179,31 @@ export function CoordinateTable() {
                             const noteIdx = headers.findIndex(h => ["note", "備考"].includes(h))
 
                             importedPoints = rows.slice(1).map(row => ({
-                                name: row[nameIdx],
-                                x: parseFloat(row[xIdx]),
-                                y: parseFloat(row[yIdx]),
-                                z: zIdx >= 0 ? parseFloat(row[zIdx]) : 0,
-                                note: noteIdx >= 0 ? row[noteIdx] : ""
+                                name: String(row[nameIdx] || ""),
+                                x: parseFloat(String(row[xIdx])),
+                                y: parseFloat(String(row[yIdx])),
+                                z: zIdx >= 0 ? parseFloat(String(row[zIdx])) : 0,
+                                note: noteIdx >= 0 ? String(row[noteIdx] || "") : ""
                             }))
                         } else {
                             // Assume standard order: Name, X, Y, Z, Note
                             importedPoints = rows.map(row => ({
-                                name: row[0],
-                                x: parseFloat(row[1]),
-                                y: parseFloat(row[2]),
-                                z: parseFloat(row[3]) || 0,
-                                note: row[4] || ""
+                                name: String(row[0] || ""),
+                                x: parseFloat(String(row[1])),
+                                y: parseFloat(String(row[2])),
+                                z: parseFloat(String(row[3])) || 0,
+                                note: String(row[4] || "")
                             }))
                         }
 
-                        // Filter valid points
-                        const validPoints = importedPoints.filter(p => p.name && !isNaN(p.x) && !isNaN(p.y))
+                        // Attach active project ID if specific project selected
+                        const pId = typeof activeProjectId === "number" ? activeProjectId : undefined
+                        const validPoints = importedPoints
+                            .filter(p => p.name && !isNaN(p.x) && !isNaN(p.y))
+                            .map(p => ({ ...p, projectId: pId }))
 
                         if (validPoints.length > 0) {
-                            await db.points.bulkAdd(validPoints as any)
+                            await db.points.bulkAdd(validPoints)
                             alert(`${validPoints.length} 件インポートしました`)
                         } else {
                             alert("有効なデータが見つかりませんでした。\nCSVは「点名,X,Y,Z」の順序、またはヘッダーありで作成してください。")
@@ -219,7 +223,9 @@ export function CoordinateTable() {
                 }
 
                 if (importedPoints.length > 0) {
-                    await db.points.bulkAdd(importedPoints as any)
+                    const pId = typeof activeProjectId === "number" ? activeProjectId : undefined
+                    const pointsWithProject = importedPoints.map(p => ({ ...p, projectId: pId }))
+                    await db.points.bulkAdd(pointsWithProject)
                     alert(`${importedPoints.length} 件インポートしました`)
                 } else {
                     const snippet = text.substring(0, 200)
@@ -272,8 +278,12 @@ export function CoordinateTable() {
         <Card className="border-0 shadow-none sm:border sm:shadow-sm bg-card">
             <CardHeader className="px-0 pt-0 pb-4 sm:px-6 sm:pt-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <CardTitle className="text-xl font-bold">座標一覧</CardTitle>
+                    <div className="flex items-center gap-3">
+                        <CardTitle className="text-xl font-bold">座標一覧</CardTitle>
+                        <ProjectManager />
+                    </div>
                     <div className="flex flex-wrap gap-2">
+                        <BackupManager />
                         <input
                             type="file"
                             ref={fileInputRef}

@@ -20,7 +20,18 @@ export function AltitudeCorrection() {
 
     // 変換対象ポイント
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
-    const [previewResults, setPreviewResults] = useState<any[] | null>(null)
+    const [previewResults, setPreviewResults] = useState<Array<{
+        id: number;
+        name: string;
+        x: number;
+        y: number;
+        oldZ: number;
+        correction: number;
+        dz: number;
+        newZ: number;
+        status: 'success' | 'error';
+        msg?: string;
+    }> | null>(null)
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -114,12 +125,12 @@ export function AltitudeCorrection() {
                 if (correction !== null) {
                     const oldZ = p.z || 0
                     const newZ = oldZ + correction
-                    return { ...p, oldZ, correction, newZ, status: 'success' }
+                    return { ...p, oldZ, correction, dz: correction, newZ, status: 'success' as const }
                 } else {
-                    return { ...p, oldZ: p.z || 0, status: 'error', msg: 'パラメータの範囲外です' }
+                    return { ...p, oldZ: p.z || 0, correction: 0, dz: 0, newZ: p.z || 0, status: 'error' as const, msg: 'パラメータの範囲外です' }
                 }
             } else {
-                return { ...p, oldZ: p.z || 0, status: 'error', msg: '緯度経度が設定されていません' }
+                return { ...p, oldZ: p.z || 0, correction: 0, dz: 0, newZ: p.z || 0, status: 'error' as const, msg: '緯度経度が設定されていません' }
             }
         })
         setPreviewResults(results)

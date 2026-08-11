@@ -93,7 +93,7 @@ export function calculateHelmertParams(pairs: ControlPointPair[], fixedScale: bo
 
     // Extract Scale and Rotation
     const scale = Math.sqrt(a * a + b * b)
-    let rotRad = Math.atan2(b, a)
+    const rotRad = Math.atan2(b, a)
     const rotDeg = rotRad * (180 / Math.PI)
 
     return {

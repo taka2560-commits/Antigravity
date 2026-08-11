@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { RotateCcw, Plus, Minus, ClipboardList, Divide, X, Delete } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Input } from "./ui/input"
@@ -71,8 +71,8 @@ function parseDMS(val: string): number {
     if (parts.length === 0) return 0
 
     let deg = parts[0]
-    let min = parts.length > 1 ? parts[1] : 0
-    let sec = parts.length > 2 ? parts[2] : 0
+    const min = parts.length > 1 ? parts[1] : 0
+    const sec = parts.length > 2 ? parts[2] : 0
 
     // Handle negative
     const sign = deg < 0 ? -1 : 1
@@ -126,7 +126,7 @@ function GradientCalculator() {
     const [resSlope, setResSlope] = useState<number | null>(null)
     const [resHeight, setResHeight] = useState<number | null>(null)
 
-    const calculate = () => {
+    const calculate = useCallback(() => {
         const d = parseFloat(dist)
 
         if (mode === "A") {
@@ -157,15 +157,17 @@ function GradientCalculator() {
             const g = (h / d) * 100
             setResGradient(g)
         }
-    }
+    }, [dist, height, gradient, angle, mode])
 
     useEffect(() => {
-        calculate()
-    }, [dist, height, gradient, angle, mode])
+        queueMicrotask(() => {
+            calculate()
+        })
+    }, [calculate])
 
     const handleRecord = () => {
         let summary = ""
-        let details: any = { mode, dist }
+        let details: Record<string, unknown> = { mode, dist }
 
         if (mode === "A") {
             if (resGradient === null) return
@@ -342,16 +344,18 @@ function TrigCalculator() {
 
     useEffect(() => {
         const val = parseDMS(deg)
-        if (!isNaN(val)) {
-            const rad = val * (Math.PI / 180)
-            setRes({
-                sin: Math.sin(rad),
-                cos: Math.cos(rad),
-                tan: Math.tan(rad)
-            })
-        } else {
-            setRes(null)
-        }
+        queueMicrotask(() => {
+            if (!isNaN(val)) {
+                const rad = val * (Math.PI / 180)
+                setRes({
+                    sin: Math.sin(rad),
+                    cos: Math.cos(rad),
+                    tan: Math.tan(rad)
+                })
+            } else {
+                setRes(null)
+            }
+        })
     }, [deg])
 
     const handleRecord = () => {
@@ -433,50 +437,51 @@ function CurveCalculator() {
             v = parseFloat(val2)
         }
 
-        if (!r || !v) {
-            setResults(null)
-            return
-        }
-
-        let ia_rad = 0
-        let ia_deg = 0
-
-        try {
-            if (mode === "IA") {
-                ia_deg = v
-                ia_rad = v * (Math.PI / 180)
-            } else if (mode === "CL") {
-                ia_rad = v / r
-                ia_deg = ia_rad * (180 / Math.PI)
-            } else if (mode === "C") {
-                const sinVal = v / (2 * r)
-                if (sinVal > 1) {
-                    setResults(null)
-                    return
-                }
-                ia_rad = 2 * Math.asin(sinVal)
-                ia_deg = ia_rad * (180 / Math.PI)
+        queueMicrotask(() => {
+            if (!r || !v) {
+                setResults(null)
+                return
             }
 
-            const tl = r * Math.tan(ia_rad / 2)
-            const cl = r * ia_rad
-            const e = r * (1 / Math.cos(ia_rad / 2) - 1)
-            const m = r * (1 - Math.cos(ia_rad / 2))
-            const c = 2 * r * Math.sin(ia_rad / 2)
+            let ia_rad = 0
+            let ia_deg = 0
 
-            setResults({
-                ia: ia_deg,
-                cl: cl,
-                tl: tl,
-                e: e,
-                m: m,
-                c: c
-            })
+            try {
+                if (mode === "IA") {
+                    ia_deg = v
+                    ia_rad = v * (Math.PI / 180)
+                } else if (mode === "CL") {
+                    ia_rad = v / r
+                    ia_deg = ia_rad * (180 / Math.PI)
+                } else if (mode === "C") {
+                    const sinVal = v / (2 * r)
+                    if (sinVal > 1) {
+                        setResults(null)
+                        return
+                    }
+                    ia_rad = 2 * Math.asin(sinVal)
+                    ia_deg = ia_rad * (180 / Math.PI)
+                }
 
-        } catch (e) {
-            setResults(null)
-        }
+                const tl = r * Math.tan(ia_rad / 2)
+                const cl = r * ia_rad
+                const e = r * (1 / Math.cos(ia_rad / 2) - 1)
+                const m = r * (1 - Math.cos(ia_rad / 2))
+                const c = 2 * r * Math.sin(ia_rad / 2)
 
+                setResults({
+                    ia: ia_deg,
+                    cl: cl,
+                    tl: tl,
+                    e: e,
+                    m: m,
+                    c: c
+                })
+
+            } catch {
+                setResults(null)
+            }
+        })
     }, [radius, val2, mode])
 
     const handleRecord = () => {
@@ -581,11 +586,11 @@ function CounterCalculator() {
         if (activeInput === 'increment') setIncrement(increment + char)
     }
 
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         const s = parseFloat(startVal) || 0
         setCurrentVal(s)
         setHistory([s])
-    }
+    }, [startVal])
 
     const handleAdd = () => {
         const inc = parseFloat(increment) || 0
@@ -612,8 +617,10 @@ function CounterCalculator() {
 
     // Init history on load
     useEffect(() => {
-        handleReset()
-    }, [])
+        queueMicrotask(() => {
+            handleReset()
+        })
+    }, [handleReset])
 
     return (
         <Card>

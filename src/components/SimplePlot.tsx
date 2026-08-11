@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks"
-import { db } from "../db"
+import { db, type Point } from "../db"
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts"
 import { useMemo, useState, useRef, useEffect, useCallback } from "react"
 import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react"
@@ -8,13 +8,48 @@ import { Button } from "./ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 interface SimplePlotProps {
-    onPointSelect?: (point: any) => void
+    onPointSelect?: (point: Point) => void
+}
+
+const niceNum = (range: number, round: boolean) => {
+    const exponent = Math.floor(Math.log10(range))
+    const fraction = range / Math.pow(10, exponent)
+    let niceFraction
+
+    if (round) {
+        if (fraction < 1.5) niceFraction = 1
+        else if (fraction < 3) niceFraction = 2
+        else if (fraction < 7) niceFraction = 5
+        else niceFraction = 10
+    } else {
+        if (fraction <= 1) niceFraction = 1
+        else if (fraction <= 2) niceFraction = 2
+        else if (fraction <= 5) niceFraction = 5
+        else niceFraction = 10
+    }
+
+    return niceFraction * Math.pow(10, exponent)
+}
+
+const getNiceTicks = (min: number, max: number, maxTicks = 10) => {
+    const range = niceNum(max - min, false)
+    const tickSpacing = niceNum(range / (maxTicks - 1), true)
+    const niceMin = Math.floor(min / tickSpacing) * tickSpacing
+    const niceMax = Math.ceil(max / tickSpacing) * tickSpacing
+
+    const ticks = []
+    for (let t = niceMin; t <= niceMax + 0.0000001; t += tickSpacing) {
+        ticks.push(t)
+    }
+    return { min: niceMin, max: niceMax, ticks }
 }
 
 export function SimplePlot({ onPointSelect }: SimplePlotProps) {
     const points = useLiveQuery(() => db.points.toArray())
     const [showLabels, setShowLabels] = useState(true)
     const [highlightedPointId, setHighlightedPointId] = useState<string>("all")
+    const [domainX, setDomainX] = useState<number[] | null>(null)
+    const [domainY, setDomainY] = useState<number[] | null>(null)
 
     const data = useMemo(() => {
         if (!points) return []
@@ -41,8 +76,10 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
             // Validate coordinates exist
             if (target.plotX === undefined || target.plotY === undefined) return
 
-            setDomainX([x - zoomCheck / 2, x + zoomCheck / 2])
-            setDomainY([y - zoomCheck / 2, y + zoomCheck / 2])
+            queueMicrotask(() => {
+                setDomainX([x - zoomCheck / 2, x + zoomCheck / 2])
+                setDomainY([y - zoomCheck / 2, y + zoomCheck / 2])
+            })
         }
     }, [highlightedPointId, data])
 
@@ -68,8 +105,8 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
         // And: PlotWidth >= rangeX, PlotHeight >= rangeY
 
         // Try fitting based on Y (height)
-        let plotHeight = Math.max(rangeY, rangeX / ASPECT_RATIO) || 100
-        let plotWidth = plotHeight * ASPECT_RATIO
+        const plotHeight = Math.max(rangeY, rangeX / ASPECT_RATIO) || 100
+        const plotWidth = plotHeight * ASPECT_RATIO
 
         // Add 10% padding
         const padY = plotHeight * 0.1
@@ -96,54 +133,19 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
         })
     }, [data, highlightedPointId])
 
-    const [domainX, setDomainX] = useState<number[] | null>(null)
-    const [domainY, setDomainY] = useState<number[] | null>(null)
-
     // Reset domains when data changes (or initial load)
     useEffect(() => {
         if (initialDomains) {
-            setDomainX(initialDomains.x)
-            setDomainY(initialDomains.y)
+            queueMicrotask(() => {
+                setDomainX(initialDomains.x)
+                setDomainY(initialDomains.y)
+            })
         }
     }, [initialDomains])
 
     // State for Pan/Zoom
     const [isDragging, setIsDragging] = useState(false)
     const lastMousePos = useRef({ x: 0, y: 0 })
-
-    const niceNum = (range: number, round: boolean) => {
-        const exponent = Math.floor(Math.log10(range))
-        const fraction = range / Math.pow(10, exponent)
-        let niceFraction
-
-        if (round) {
-            if (fraction < 1.5) niceFraction = 1
-            else if (fraction < 3) niceFraction = 2
-            else if (fraction < 7) niceFraction = 5
-            else niceFraction = 10
-        } else {
-            if (fraction <= 1) niceFraction = 1
-            else if (fraction <= 2) niceFraction = 2
-            else if (fraction <= 5) niceFraction = 5
-            else niceFraction = 10
-        }
-
-        return niceFraction * Math.pow(10, exponent)
-    }
-
-    // Helper to calculate nice ticks
-    const getNiceTicks = (min: number, max: number, maxTicks = 10) => {
-        const range = niceNum(max - min, false)
-        const tickSpacing = niceNum(range / (maxTicks - 1), true)
-        const niceMin = Math.floor(min / tickSpacing) * tickSpacing
-        const niceMax = Math.ceil(max / tickSpacing) * tickSpacing
-
-        const ticks = []
-        for (let t = niceMin; t <= niceMax + 0.0000001; t += tickSpacing) {
-            ticks.push(t)
-        }
-        return { min: niceMin, max: niceMax, ticks }
-    }
 
     // Memoize ticks based on current domain
     const axisInfo = useMemo(() => {
@@ -174,8 +176,8 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
 
         const ASPECT_RATIO = 0.75
 
-        let plotHeight = Math.max(rangeY, rangeX / ASPECT_RATIO) || 100
-        let plotWidth = plotHeight * ASPECT_RATIO
+        const plotHeight = Math.max(rangeY, rangeX / ASPECT_RATIO) || 100
+        const plotWidth = plotHeight * ASPECT_RATIO
 
         const padY = plotHeight * 0.1
         const padX = plotWidth * 0.1
@@ -352,7 +354,7 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
         const yRange = domainY[1] - domainY[0]
 
         // Find closest point
-        let closest: any = null
+        let closest: (typeof data)[0] | null = null
         let minDist = 40 // Increased hit radius (px) for easier touch
 
         // Iterate REVERSE to prioritize top-drawn elements (if any overlap logic existed)
@@ -372,8 +374,8 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
             }
         })
 
-        if (closest) {
-            onPointSelect && onPointSelect(closest)
+        if (closest && onPointSelect) {
+            onPointSelect(closest)
         }
     }
 
@@ -482,14 +484,17 @@ export function SimplePlot({ onPointSelect }: SimplePlotProps) {
     }, [sortedData, domainX, domainY, chartSize, highlightedPointId])
 
     // LabelListのcontent関数を安定化（インライン関数による再レンダリングループ防止）
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const renderLabel = useCallback((props: any) => {
         const { x, y, value, index } = props
+        if (index === undefined) return null
         const point = sortedData[index]
         if (!point || !visibleLabelIds.has(String(point.id))) return null
+        const numY = typeof y === 'number' ? y : parseFloat(String(y || 0))
         return (
             <text
                 x={x}
-                y={y - 5}
+                y={numY - 5}
                 fill="hsl(var(--foreground))"
                 fontSize={11}
                 fontWeight={600}

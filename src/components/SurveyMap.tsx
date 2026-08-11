@@ -19,7 +19,7 @@ import L from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
     iconSize: [25, 41],
@@ -165,7 +165,7 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
         if (saved) {
             try {
                 return JSON.parse(saved)
-            } catch (e) { return null }
+            } catch { return null }
         }
         return null
     })
@@ -222,7 +222,7 @@ export function SurveyMap({ isFullScreen, setIsFullScreen }: { isFullScreen?: bo
                 setZoom(targetZoom)
             }
         }
-    }, [highlightedPointId, validPoints])
+    }, [highlightedPointId, validPoints, zoom])
 
     const handleLayerChange = (key: keyof typeof TILE_LAYERS) => {
         setLayerKey(key)

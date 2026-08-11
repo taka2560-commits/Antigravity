@@ -16,7 +16,17 @@ export function GeoidCalculation() {
     const points = useLiveQuery(() => db.points.toArray())
 
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
-    const [previewResults, setPreviewResults] = useState<any[] | null>(null)
+    const [previewResults, setPreviewResults] = useState<Array<{
+        id: number;
+        name: string;
+        lat: number;
+        lon: number;
+        oldZ: number;
+        geoidHeight: number;
+        newZ?: number;
+        status: 'success' | 'error';
+        msg?: string;
+    }> | null>(null)
     const [isCalculating, setIsCalculating] = useState(false)
     const [calcMode, setCalcMode] = useState<"only" | "toOrtho" | "toEllipsoid">("only")
     const [progressStr, setProgressStr] = useState("")
@@ -70,10 +80,10 @@ export function GeoidCalculation() {
                         newZ = oldZ + geoidHeight
                     }
 
-                    results.push({ ...p, oldZ, geoidHeight, newZ, status: 'success' })
+                    results.push({ ...p, lat: p.lat ?? 0, lon: p.lon ?? 0, oldZ, geoidHeight, newZ, status: 'success' as const })
                     successCount++
                 } else {
-                    results.push({ ...p, oldZ: p.z || 0, status: 'error', msg: 'API取得エラー' })
+                    results.push({ ...p, lat: p.lat ?? 0, lon: p.lon ?? 0, oldZ: p.z || 0, geoidHeight: 0, status: 'error' as const, msg: 'API取得エラー' })
                     errorCount++
                 }
 
@@ -83,7 +93,7 @@ export function GeoidCalculation() {
                 }
 
             } else {
-                results.push({ ...p, oldZ: p.z || 0, status: 'error', msg: '緯度経度なし' })
+                results.push({ ...p, lat: p.lat ?? 0, lon: p.lon ?? 0, oldZ: p.z || 0, geoidHeight: 0, status: 'error' as const, msg: '緯度経度なし' })
                 errorCount++
             }
         }
@@ -136,7 +146,7 @@ export function GeoidCalculation() {
                     <div className="border rounded-lg bg-card shadow-sm flex flex-col h-[500px]">
                         <div className="p-4 border-b bg-muted/20">
                             <h3 className="text-sm font-semibold mb-3">1. 計算・更新モード設定</h3>
-                            <RadioGroup value={calcMode} onValueChange={(v: any) => setCalcMode(v)} className="space-y-2">
+                            <RadioGroup value={calcMode} onValueChange={(v) => setCalcMode(v as "only" | "toOrtho" | "toEllipsoid")} className="space-y-2">
                                 <div className="flex items-center space-x-2 border p-2 rounded-md bg-background hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => setCalcMode("only")}>
                                     <RadioGroupItem value="only" id="r1" />
                                     <Label htmlFor="r1" className="flex-1 cursor-pointer">
@@ -251,7 +261,7 @@ export function GeoidCalculation() {
                                                                 </TableCell>
                                                                 {calcMode !== "only" && (
                                                                     <TableCell className="text-right font-mono text-primary font-bold">
-                                                                        {r.newZ.toFixed(4)}
+                                                                        {r.newZ !== undefined ? r.newZ.toFixed(4) : "-"}
                                                                     </TableCell>
                                                                 )}
                                                                 <TableCell><span className="text-green-600 font-bold text-[10px] bg-green-500/10 px-1.5 py-0.5 rounded">成功</span></TableCell>

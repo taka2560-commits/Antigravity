@@ -16,11 +16,11 @@ export function ElevationConversion() {
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
     const [fromSystemIdx, setFromSystemIdx] = useState(0) // T.P.
     const [toSystemIdx, setToSystemIdx] = useState(1)     // O.P.
-    const [previewResults, setPreviewResults] = useState<any[] | null>(null)
+    const [previewResults, setPreviewResults] = useState<Array<{ id: number; name: string; oldZ: number; diff: number; newZ: number }> | null>(null)
 
     const fromSystem = ELEVATION_SYSTEMS[fromSystemIdx]
     const toSystem = ELEVATION_SYSTEMS[toSystemIdx]
-    const offset = useMemo(() => getConversionOffset(fromSystem, toSystem), [fromSystemIdx, toSystemIdx])
+    const offset = useMemo(() => getConversionOffset(fromSystem, toSystem), [fromSystem, toSystem])
 
     const toggleSelection = (id: number) => {
         const newSet = new Set(selectedIds)

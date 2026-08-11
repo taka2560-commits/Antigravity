@@ -89,7 +89,10 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
     // Restore from history
     useEffect(() => {
         if (historyData && historyData.type === 'helmert' && historyData.details) {
-            const { input, pairs: savedPairs } = historyData.details;
+            const { input, pairs: savedPairs } = historyData.details as {
+                input?: { x?: number; y?: number; name?: string };
+                pairs?: ControlPointPair[];
+            };
 
             if (savedPairs && Array.isArray(savedPairs)) {
                 setPairs(savedPairs);
@@ -396,7 +399,7 @@ export function HelmertTransformation({ historyData }: { historyData: HistoryIte
                             <div className="bg-muted/10 p-4 rounded-lg border space-y-4">
                                 <h3 className="text-sm font-semibold text-foreground mb-2">座標変換・保存</h3>
 
-                                <Tabs defaultValue="single" className="w-full" onValueChange={(v) => setTransformMode(v as any)}>
+                                <Tabs defaultValue="single" className="w-full" onValueChange={(v) => setTransformMode(v as "single" | "batch")}>
                                     <TabsList className="grid w-full grid-cols-2 h-8">
                                         <TabsTrigger value="single" className="text-xs h-6">単点変換</TabsTrigger>
                                         <TabsTrigger value="batch" className="text-xs h-6">一括変換</TabsTrigger>

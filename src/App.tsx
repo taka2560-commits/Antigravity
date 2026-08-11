@@ -1,15 +1,24 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { CalculationHistoryProvider } from "./hooks/useCalculationHistory"
+import { ActiveProjectProvider } from "./hooks/useActiveProject"
 import { CoordinateTable } from "./components/CoordinateTable"
-import { Calculations } from "./components/Calculations"
 import { ErrorBoundary } from "./components/ErrorBoundary"
-import { SurveyMap } from "./components/SurveyMap"
-import { Manual } from "./components/Manual"
-import { Contact } from "./components/Contact"
-import { Map, Calculator, List, Monitor, Smartphone, BookOpen, Mail } from "lucide-react"
+import { Map, Calculator, List, Monitor, Smartphone, BookOpen, Mail, Loader2 } from "lucide-react"
 import { Button } from "./components/ui/button"
 import { Card } from "./components/ui/card"
 import { cn } from "./lib/utils"
+
+const Calculations = lazy(() => import("./components/Calculations").then(m => ({ default: m.Calculations })))
+const SurveyMap = lazy(() => import("./components/SurveyMap").then(m => ({ default: m.SurveyMap })))
+const Manual = lazy(() => import("./components/Manual").then(m => ({ default: m.Manual })))
+const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })))
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-12 text-muted-foreground">
+    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+    <span className="text-sm">読み込み中...</span>
+  </div>
+)
 
 
 function App() {
@@ -30,7 +39,8 @@ function App() {
   }, [activeTab])
 
   return (
-    <CalculationHistoryProvider>
+    <ActiveProjectProvider>
+      <CalculationHistoryProvider>
       <div className="min-h-screen font-sans text-foreground pb-20 md:pb-0">
         {/* Header */}
         <header className="bg-secondary/90 supports-[backdrop-filter]:bg-secondary/60 backdrop-blur-md border-b sticky top-0 z-10">
@@ -135,63 +145,65 @@ function App() {
           "mx-auto p-4 transition-all duration-300 ease-in-out",
           viewMode === "mobile" ? "max-w-md" : "max-w-7xl grid grid-cols-1 gap-6"
         )}>
-          {viewMode === "pc" ? (
-            // PC Mode: Keep all components mounted, toggle visibility
-            <>
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
-                <CoordinateTable />
-              </div>
+          <Suspense fallback={<LoadingFallback />}>
+            {viewMode === "pc" ? (
+              // PC Mode: Keep all components mounted, toggle visibility
+              <>
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
+                  <CoordinateTable />
+                </div>
 
-              <div className={cn(activeTab !== "map" && "hidden")}>
-                <Card className="h-[600px] p-4">
+                <div className={cn(activeTab !== "map" && "hidden")}>
+                  <Card className="h-[600px] p-4">
+                    <ErrorBoundary name="SurveyMap">
+                      <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
+                    </ErrorBoundary>
+                  </Card>
+                </div>
+
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "calc" && "hidden")}>
+                  <ErrorBoundary name="Calculations">
+                    <Calculations />
+                  </ErrorBoundary>
+                </div>
+
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "manual" && "hidden")}>
+                  <Manual />
+                </div>
+
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "contact" && "hidden")}>
+                  <Contact />
+                </div>
+              </>
+            ) : (
+              // Mobile Mode: Keep all components mounted, toggle visibility
+              <>
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
+                  <CoordinateTable />
+                </div>
+
+                <div className={cn("pb-20", activeTab !== "map" && "hidden")}>
                   <ErrorBoundary name="SurveyMap">
                     <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
                   </ErrorBoundary>
-                </Card>
-              </div>
+                </div>
 
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "calc" && "hidden")}>
-                <ErrorBoundary name="Calculations">
-                  <Calculations />
-                </ErrorBoundary>
-              </div>
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "calc" && "hidden")}>
+                  <ErrorBoundary name="Calculations">
+                    <Calculations />
+                  </ErrorBoundary>
+                </div>
 
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "manual" && "hidden")}>
-                <Manual />
-              </div>
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "manual" && "hidden")}>
+                  <Manual />
+                </div>
 
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "contact" && "hidden")}>
-                <Contact />
-              </div>
-            </>
-          ) : (
-            // Mobile Mode: Keep all components mounted, toggle visibility
-            <>
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300", activeTab !== "list" && "hidden")}>
-                <CoordinateTable />
-              </div>
-
-              <div className={cn("pb-20", activeTab !== "map" && "hidden")}>
-                <ErrorBoundary name="SurveyMap">
-                  <SurveyMap isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
-                </ErrorBoundary>
-              </div>
-
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "calc" && "hidden")}>
-                <ErrorBoundary name="Calculations">
-                  <Calculations />
-                </ErrorBoundary>
-              </div>
-
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "manual" && "hidden")}>
-                <Manual />
-              </div>
-
-              <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "contact" && "hidden")}>
-                <Contact />
-              </div>
-            </>
-          )}
+                <div className={cn("animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20", activeTab !== "contact" && "hidden")}>
+                  <Contact />
+                </div>
+              </>
+            )}
+          </Suspense>
         </main>
 
         {/* Bottom Navigation (Mobile Only) */}
@@ -254,6 +266,7 @@ function App() {
         )}
       </div>
     </CalculationHistoryProvider>
+    </ActiveProjectProvider>
   )
 }
 

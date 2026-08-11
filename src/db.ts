@@ -1,5 +1,13 @@
 import Dexie, { type EntityTable } from 'dexie';
 
+export interface Project {
+    id?: number;
+    name: string;
+    note: string;
+    createdAt: number;
+    updatedAt: number;
+}
+
 export interface Point {
     id: number;
     name: string;
@@ -9,6 +17,7 @@ export interface Point {
     lat?: number;
     lon?: number;
     note: string;
+    projectId?: number;
 }
 
 export interface LevelingRow {
@@ -30,6 +39,7 @@ export interface LevelingSession {
     note: string;
     rows: LevelingRow[];
     updatedAt: number;
+    projectId?: number;
 }
 
 export interface AppSetting {
@@ -40,6 +50,7 @@ export interface AppSetting {
 
 const db = new Dexie('SurveyDatabase') as Dexie & {
     points: EntityTable<Point, 'id'>;
+    projects: EntityTable<Project, 'id'>;
     levelings: EntityTable<LevelingSession, 'id'>;
     settings: EntityTable<AppSetting, 'key'>;
 };
@@ -58,6 +69,12 @@ db.version(3).stores({
 
 db.version(4).stores({
     settings: 'key'
+});
+
+db.version(5).stores({
+    projects: '++id, name, updatedAt',
+    points: '++id, name, x, y, z, lat, lon, note, projectId',
+    levelings: '++id, date, name, updatedAt, projectId'
 });
 
 export { db };

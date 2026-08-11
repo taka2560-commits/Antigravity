@@ -44,7 +44,7 @@ export function OffsetCalculation() {
         setTargets(targets.filter(t => t.id !== id))
     }
 
-    const updateTarget = (id: string, field: keyof TargetInput, value: any) => {
+    const updateTarget = (id: string, field: keyof TargetInput, value: string | number) => {
         setTargets(targets.map(t => t.id === id ? { ...t, [field]: value } : t))
     }
 

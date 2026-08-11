@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { db, type Point } from "../db"
+import { useActiveProject } from "../hooks/useActiveProject"
 import {
     Dialog,
     DialogContent,
@@ -32,6 +33,7 @@ interface CoordinateFormProps {
 }
 
 export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormProps) {
+    const { activeProjectId } = useActiveProject()
     const {
         register,
         handleSubmit,
@@ -76,7 +78,8 @@ export function CoordinateForm({ isOpen, onClose, initialData }: CoordinateFormP
             if (initialData) {
                 await db.points.update(initialData.id, data)
             } else {
-                await db.points.add(data)
+                const projectId = typeof activeProjectId === "number" ? activeProjectId : undefined
+                await db.points.add({ ...data, projectId })
             }
             onClose()
         } catch (error) {

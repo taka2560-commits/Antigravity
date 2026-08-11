@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
-import { db } from "../db"
+import { db, type Point } from "../db"
 import { Compass, ArrowRightLeft, Ruler, Calculator, ArrowRight, BookOpen, ClipboardList, Globe, GitCommit } from "lucide-react"
 import { HelmertTransformation } from "./HelmertTransformation"
 import { CoordinateConversion } from "./CoordinateConversion"
@@ -181,45 +181,47 @@ export function InverseCalculation({ historyData }: { historyData: HistoryItem |
     // Restore from history
     useEffect(() => {
         if (historyData && historyData.type === 'st' && historyData.details) {
-            const { start, end } = historyData.details;
+            const { start, end } = historyData.details as { start: Partial<Point>; end: Partial<Point> };
 
-            const p1InDb = start.id && points?.some((p: any) => p.id === start.id);
-            const p2InDb = end.id && points?.some((p: any) => p.id === end.id);
+            const p1InDb = start.id && points?.some((p) => p.id === start.id);
+            const p2InDb = end.id && points?.some((p) => p.id === end.id);
 
-            if (p1InDb) {
-                setPoint1Id(String(start.id));
-            } else {
-                setCustomP1({
-                    x: String(start.x || ""),
-                    y: String(start.y || ""),
-                    z: String(start.z || "")
-                });
-            }
-
-            if (p2InDb) {
-                setPoint2Id(String(end.id));
-            } else {
-                setCustomP2({
-                    x: String(end.x || ""),
-                    y: String(end.y || ""),
-                    z: String(end.z || "")
-                });
-            }
-
-            if (p1InDb && p2InDb) {
-                setMode("db");
-            } else {
-                setMode("custom");
-                // Ensure custom values are set even if one was found in DB
+            queueMicrotask(() => {
                 if (p1InDb) {
-                    const p = points?.find((pt: any) => pt.id === start.id);
-                    if (p) setCustomP1({ x: String(p.x), y: String(p.y), z: String(p.z) });
+                    setPoint1Id(String(start.id));
+                } else {
+                    setCustomP1({
+                        x: String(start.x || ""),
+                        y: String(start.y || ""),
+                        z: String(start.z || "")
+                    });
                 }
+
                 if (p2InDb) {
-                    const p = points?.find((pt: any) => pt.id === end.id);
-                    if (p) setCustomP2({ x: String(p.x), y: String(p.y), z: String(p.z) });
+                    setPoint2Id(String(end.id));
+                } else {
+                    setCustomP2({
+                        x: String(end.x || ""),
+                        y: String(end.y || ""),
+                        z: String(end.z || "")
+                    });
                 }
-            }
+
+                if (p1InDb && p2InDb) {
+                    setMode("db");
+                } else {
+                    setMode("custom");
+                    // Ensure custom values are set even if one was found in DB
+                    if (p1InDb) {
+                        const p = points?.find((pt) => pt.id === start.id);
+                        if (p) setCustomP1({ x: String(p.x), y: String(p.y), z: String(p.z) });
+                    }
+                    if (p2InDb) {
+                        const p = points?.find((pt) => pt.id === end.id);
+                        if (p) setCustomP2({ x: String(p.x), y: String(p.y), z: String(p.z) });
+                    }
+                }
+            });
         }
     }, [historyData, points])
 

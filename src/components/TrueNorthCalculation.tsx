@@ -26,21 +26,26 @@ export function TrueNorthCalculation({ historyData }: { historyData: HistoryItem
     // Restore from history
     useEffect(() => {
         if (historyData && historyData.type === 'north' && historyData.details) {
-            const { input: savedInput, zone: savedZone } = historyData.details;
+            const { input: savedInput, zone: savedZone } = historyData.details as {
+                input?: { lat?: number; lon?: number; name?: string; gridAzimuth?: number };
+                zone?: number;
+            };
 
-            if (savedZone) setZone(savedZone);
-            if (savedInput) {
-                setInput({
-                    lat: savedInput.lat || 0,
-                    lon: savedInput.lon || 0,
-                    name: savedInput.name || ""
-                });
-                if (savedInput.gridAzimuth !== undefined) {
-                    setGridAzimuth(savedInput.gridAzimuth);
+            queueMicrotask(() => {
+                if (savedZone) setZone(savedZone);
+                if (savedInput) {
+                    setInput({
+                        lat: savedInput.lat || 0,
+                        lon: savedInput.lon || 0,
+                        name: savedInput.name || ""
+                    });
+                    if (savedInput.gridAzimuth !== undefined) {
+                        setGridAzimuth(savedInput.gridAzimuth);
+                    }
                 }
-            }
-            // Clear selected point ID as we are restoring raw values
-            setSelectedPointId("");
+                // Clear selected point ID as we are restoring raw values
+                setSelectedPointId("");
+            });
         }
     }, [historyData])
 
@@ -49,30 +54,34 @@ export function TrueNorthCalculation({ historyData }: { historyData: HistoryItem
         if (selectedPointId && points) {
             const p = points.find(pt => pt.id === Number(selectedPointId))
             if (p) {
-                // If point has Lat/Lon, use it. If not, convert X/Y to Lat/Lon
-                if (p.lat !== undefined && p.lon !== undefined) {
-                    setInput({ lat: p.lat, lon: p.lon, name: p.name })
-                } else {
-                    try {
-                        const ll = xyToLatLon(p.x ?? 0, p.y ?? 0, zone) // Use current zone
-                        setInput({ lat: ll.lat, lon: ll.lon, name: p.name })
-                    } catch (e) {
-                        // Fallback or error
+                queueMicrotask(() => {
+                    // If point has Lat/Lon, use it. If not, convert X/Y to Lat/Lon
+                    if (p.lat !== undefined && p.lon !== undefined) {
+                        setInput({ lat: p.lat, lon: p.lon, name: p.name })
+                    } else {
+                        try {
+                            const ll = xyToLatLon(p.x ?? 0, p.y ?? 0, zone) // Use current zone
+                            setInput({ lat: ll.lat, lon: ll.lon, name: p.name })
+                        } catch {
+                            // Fallback or error
+                        }
                     }
-                }
+                });
             }
         } else if (selectedPointId === "") { // Manual input selected
             if (!historyData) { // Only reset if not restoring history
-                setInput({ lat: 0, lon: 0, name: "" })
+                queueMicrotask(() => {
+                    setInput({ lat: 0, lon: 0, name: "" })
+                });
             }
         }
-    }, [selectedPointId, points, zone])
+    }, [selectedPointId, points, zone, historyData])
 
     // Calculate Convergence
     const convergence = useMemo(() => {
         try {
             return calculateMeridianConvergence(input.lat, input.lon, zone)
-        } catch (e) {
+        } catch {
             return 0
         }
     }, [input.lat, input.lon, zone])

@@ -32,12 +32,27 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
 
     // Batch Conversion State
     const [selectedBatchIds, setSelectedBatchIds] = useState<Set<number>>(new Set())
-    const [batchPreview, setBatchPreview] = useState<any[] | null>(null)
+    const [batchPreview, setBatchPreview] = useState<Array<{
+        id: number;
+        name: string;
+        newLat?: number;
+        newLon?: number;
+        newX?: number;
+        newY?: number;
+        lat?: number;
+        lon?: number;
+        status: 'success' | 'error';
+        msg?: string;
+    }> | null>(null)
 
     // Restore from history
     useEffect(() => {
         if (historyData && historyData.type === 'coord' && historyData.details) {
-            const { input, direction: savedDirection, zone: savedZone } = historyData.details;
+            const { input, direction: savedDirection, zone: savedZone } = historyData.details as {
+                input?: { x?: number; y?: number; lat?: number; lon?: number; name?: string };
+                direction?: ConversionDirection;
+                zone?: number;
+            };
 
             if (savedDirection) setDirection(savedDirection);
             if (savedZone) setZone(savedZone);
@@ -73,7 +88,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                         try {
                             const ll = xyToLatLon(p.x, p.y, zone)
                             setSingleInput(prev => ({ ...prev, lat: ll.lat, lon: ll.lon, name: p.name }))
-                        } catch (e) {
+                        } catch {
                             setSingleInput(prev => ({ ...prev, name: p.name }))
                         }
                     }
@@ -82,7 +97,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
         }
     }, [selectedPointId, points, direction, zone])
 
-    const singleResult = (() => {
+    const singleResult: { type: 'll'; lat: number; lon: number } | { type: 'xy'; x: number; y: number } | null = (() => {
         try {
             if (direction === "xy2ll") {
                 const res = xyToLatLon(singleInput.x, singleInput.y, zone)
@@ -91,7 +106,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                 const res = latLonToXY(singleInput.lat, singleInput.lon, zone)
                 return { type: 'xy', ...res }
             }
-        } catch (e) {
+        } catch {
             return null
         }
     })()
@@ -190,18 +205,18 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
             try {
                 if (direction === "xy2ll") {
                     const res = xyToLatLon(p.x, p.y, zone)
-                    return { ...p, newLat: res.lat, newLon: res.lon, status: 'success' }
+                    return { ...p, newLat: res.lat, newLon: res.lon, status: 'success' as const }
                 } else {
                     // LL to XY (requires point to have lat/lon)
                     if (p.lat !== undefined && p.lon !== undefined) {
                         const res = latLonToXY(p.lat, p.lon, zone)
-                        return { ...p, newX: res.x, newY: res.y, status: 'success' }
+                        return { ...p, newX: res.x, newY: res.y, status: 'success' as const }
                     } else {
-                        return { ...p, status: 'error', msg: '緯度経度なし' }
+                        return { ...p, status: 'error' as const, msg: '緯度経度なし' }
                     }
                 }
-            } catch (e) {
-                return { ...p, status: 'error', msg: '計算エラー' }
+            } catch {
+                return { ...p, status: 'error' as const, msg: '計算エラー' }
             }
         })
         setBatchPreview(results)
@@ -226,8 +241,8 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                         // Create new points for XY
                         await db.points.add({
                             name: `${item.name}_XY`,
-                            x: item.newX,
-                            y: item.newY,
+                            x: item.newX ?? 0,
+                            y: item.newY ?? 0,
                             z: 0,
                             lat: item.lat,
                             lon: item.lon,
@@ -295,7 +310,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                     </div>
                 </div>
 
-                <Tabs defaultValue="single" value={mode} onValueChange={(v) => setMode(v as any)} className="w-full">
+                <Tabs defaultValue="single" value={mode} onValueChange={(v) => setMode(v as "single" | "batch")} className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="single">単点変換</TabsTrigger>
                         <TabsTrigger value="batch">一括変換</TabsTrigger>
@@ -372,11 +387,11 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                                             <div className="space-y-4 w-full">
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">緯度 (Latitude)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms((singleResult as any).lat)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms(singleResult.lat)}</div>
                                                 </div>
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">経度 (Longitude)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms((singleResult as any).lon)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{decimalToDms(singleResult.lon)}</div>
                                                 </div>
                                                 <div className="pt-2 text-[10px] text-muted-foreground">
                                                     ※世界測地系 (JGD2011)
@@ -386,11 +401,11 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                                             <div className="space-y-4 w-full">
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">X座標 (North)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{(singleResult as any).x.toFixed(4)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{singleResult.x.toFixed(4)}</div>
                                                 </div>
                                                 <div>
                                                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Y座標 (East)</div>
-                                                    <div className="text-xl font-mono font-bold text-primary">{(singleResult as any).y.toFixed(4)}</div>
+                                                    <div className="text-xl font-mono font-bold text-primary">{singleResult.y.toFixed(4)}</div>
                                                 </div>
                                             </div>
                                         )}
@@ -482,7 +497,7 @@ export function CoordinateConversion({ historyData }: { historyData: HistoryItem
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {batchPreview?.map((row: any) => (
+                                {batchPreview?.map((row) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="font-medium">{row.name}</TableCell>
                                         <TableCell>

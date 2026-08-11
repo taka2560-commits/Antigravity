@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 
 export type HistoryType = 'st' | 'coord' | 'north' | 'helmert' | 'point' | 'gradient' | 'trig' | 'curve' | 'counter';
@@ -9,7 +9,7 @@ export interface HistoryItem {
     type: HistoryType;
     title: string;
     summary: string;
-    details: any; // スナップショットとして保存（参照ではなく値コピー）
+    details: Record<string, unknown>; // スナップショットとして保存（参照ではなく値コピー）
 }
 
 const STORAGE_KEY = 'survey-app-calc-history';
@@ -25,19 +25,15 @@ interface CalculationHistoryContextType {
 const CalculationHistoryContext = createContext<CalculationHistoryContextType | undefined>(undefined);
 
 export function CalculationHistoryProvider({ children }: { children: ReactNode }) {
-    const [history, setHistory] = useState<HistoryItem[]>([]);
-
-    // 初期ロード
-    useEffect(() => {
+    const [history, setHistory] = useState<HistoryItem[]>(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                setHistory(JSON.parse(stored));
-            }
+            return stored ? JSON.parse(stored) : [];
         } catch (e) {
             console.error("Failed to load history", e);
+            return [];
         }
-    }, []);
+    });
 
     const addHistory = useCallback((item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
         const newItem: HistoryItem = {
@@ -88,6 +84,7 @@ export function CalculationHistoryProvider({ children }: { children: ReactNode }
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCalculationHistory() {
     const context = useContext(CalculationHistoryContext);
     if (context === undefined) {
